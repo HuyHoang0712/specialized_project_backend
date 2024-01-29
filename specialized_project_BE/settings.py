@@ -78,11 +78,11 @@ WSGI_APPLICATION = "specialized_project_BE.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "logistic",
-        "USER": "postgres",
-        "PASSWORD": "password",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "NAME": "verceldb",
+        "USER": "default",
+        "PASSWORD": "B0rhsd5YzWKU",
+        "HOST": "ep-mute-credit-a1fthynw-pooler.ap-southeast-1.postgres.vercel-storage.com",
+        # "PORT": "5432",
     }
 }
 
