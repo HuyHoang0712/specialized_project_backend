@@ -1,5 +1,7 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from  rest_framework.decorators import action
 from .models import *
 from .serializers import *
 
@@ -10,6 +12,14 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
+    @action(detail=False, methods=['GET'])
+    def get_user(self, request, pk=None):
+        if 'username' in request.data:
+            user_instance = Employee.objects.get(username=request.data['username'])
+            serializer = EmployeeSerializer(user_instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        error = "Something is wrong!"
+        return Response(error, status=status.HTTP_404_NOT_FOUND)
 
 class WarehouseViewSet(viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
