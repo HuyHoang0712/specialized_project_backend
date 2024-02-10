@@ -38,15 +38,6 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     # def get_queryset(self):
     #     return Employee.objects.all()
 
-    @action(detail=False, methods=["POST"])
-    def get_user(self, request, pk=None):
-        if "username" in request.data:
-            user_instance = Employee.objects.get(username=request.data["username"])
-            serializer = EmployeeSerializer(user_instance)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        error = "Something is wrong!"
-        return Response(error, status=status.HTTP_404_NOT_FOUND)
-
 
 class WarehouseViewSet(viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
