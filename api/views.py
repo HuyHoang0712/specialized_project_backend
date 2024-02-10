@@ -12,7 +12,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['POST'])
     def get_user(self, request, pk=None):
         if 'username' in request.data:
             user_instance = Employee.objects.get(username=request.data['username'])

@@ -10,7 +10,7 @@ class Employee(models.Model):
     date_of_birth = models.DateField()
     role = models.CharField(max_length=32)
     status = models.CharField(max_length=32)
-    password = models.CharField(max_length=16)
+    password = models.CharField(max_length=200)
     username = models.CharField(max_length=50)
 
 
