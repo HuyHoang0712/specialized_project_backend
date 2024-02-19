@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from rest_framework import viewsets, permissions, exceptions
+from rest_framework import viewsets, permissions, exceptions, status
 from .models import *
 from .serializers import *
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.decorators import permission_required
 
 ###
@@ -27,7 +28,7 @@ def permission_required(permission_name, raise_exception=False):
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (
         IsAuthenticated,
         permission_required("api.view_employee", raise_exception=True),
@@ -38,6 +39,15 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
     # def get_queryset(self):
     #     return Employee.objects.all()
+
+    @action(detail=False, methods=["POST"])
+    def get_user(self, request, pk=None):
+        if "username" in request.data:
+            user_instance = Employee.objects.get(username=request.data["username"])
+            serializer = EmployeeSerializer(user_instance)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        error = "Something is wrong!"
+        return Response(error, status=status.HTTP_404_NOT_FOUND)
 
 
 class WarehouseViewSet(viewsets.ModelViewSet):
