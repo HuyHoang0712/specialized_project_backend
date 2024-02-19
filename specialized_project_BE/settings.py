@@ -44,7 +44,7 @@ SIMPLE_JWT = {
     "UPDATE_LAST_LOGIN": False,
 
     "ALGORITHM": "HS256",
-    # "SIGNING_KEY": settings.SECRET_KEY,
+    "SIGNING_KEY": SECRET_KEY,
     # "VERIFYING_KEY": "",
     # "AUDIENCE": None,
     # "ISSUER": None,
@@ -65,8 +65,8 @@ SIMPLE_JWT = {
     "JTI_CLAIM": "jti",
 
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
-    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=5),
-    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+    "SLIDING_TOKEN_LIFETIME": timedelta(days=1),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=7),
 }
 
 INSTALLED_APPS = [
@@ -77,7 +77,6 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-    "rest_framework.authtoken",
     "api",
     'rest_framework_simplejwt',
 ]
@@ -166,5 +165,9 @@ STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
+
+SECRET_KEY = "5s19^%+$%(pqfbvcg^ofmd7v09(n%3*hies0rmqt6u1^7l=#*3"
+AUTH_USER_MODEL = 'api.CustomUser'
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
