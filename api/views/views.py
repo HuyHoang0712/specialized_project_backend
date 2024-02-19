@@ -1,8 +1,11 @@
-from rest_framework import viewsets, permissions, exceptions
+from rest_framework import viewsets, permissions, exceptions, status
+from rest_framework.decorators import action, APIView
+from django.conf import settings
 from api.models import *
 from api.serializers import *
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.decorators import permission_required
 
@@ -31,8 +34,8 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         permission_required("api.delete_employee", raise_exception=True),
     )
 
-    # def get_queryset(self):
-    #     return Employee.objects.all()
+    def get_queryset(self):
+        return Employee.objects.all()
 
 
 class WarehouseViewSet(viewsets.ModelViewSet):
