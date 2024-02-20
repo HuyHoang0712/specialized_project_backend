@@ -7,7 +7,7 @@ class UserLoginView(APIView):
     authentication_classes = []
     permission_classes = []
 
-    def post(self, request):
+    def post(self, request: Request):
         serializer = UserLoginSerializer(data=request.data)
         if serializer.is_valid():
             user = authenticate(

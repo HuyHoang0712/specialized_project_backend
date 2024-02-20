@@ -6,6 +6,7 @@ from api.serializers import *
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.request import Request
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.contrib.auth.decorators import permission_required
 
