@@ -1,8 +1,8 @@
-from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
-from .views import *
-
+from api.views.views import *
+from api.views.auth_view import *
+from rest_framework_simplejwt.views import TokenRefreshView
 
 router = routers.DefaultRouter()
 router.register("employees", EmployeeViewSet)
@@ -16,5 +16,7 @@ router.register("has_notification", HasNotificationViewSet)
 
 
 urlpatterns = [
-    path("", include(router.urls)),
+    path("v1/", include(router.urls)),
+    path("auth/login", UserLoginView.as_view(), name="user_login"),
+    path("token/refresh/", TokenRefreshView.as_view(), name='token_refresh_view')
 ]

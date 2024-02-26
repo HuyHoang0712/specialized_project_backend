@@ -1,15 +1,14 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions, exceptions
-from .models import *
-from .serializers import *
-from rest_framework.authentication import BasicAuthentication
+from rest_framework import viewsets, permissions, exceptions, status
+from rest_framework.decorators import action, APIView
+from django.conf import settings
+from api.models import *
+from api.serializers import *
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.decorators import permission_required
-
-###
-from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from rest_framework.request import Request
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.contrib.auth.decorators import permission_required
 
 # Create your views here.
 def permission_required(permission_name, raise_exception=False):
@@ -27,6 +26,7 @@ def permission_required(permission_name, raise_exception=False):
 class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+    authentication_classes = (JWTAuthentication,)
     permission_classes = (
         IsAuthenticated,
         permission_required("api.view_employee", raise_exception=True),
@@ -35,13 +35,14 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         permission_required("api.delete_employee", raise_exception=True),
     )
 
-    # def get_queryset(self):
-    #     return Employee.objects.all()
+    def get_queryset(self):
+        return Employee.objects.all()
 
 
 class WarehouseViewSet(viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
     serializer_class = WarehouseSerializer
+    authentication_classes = (TokenAuthentication,)
     permission_classes = (
         IsAuthenticated,
         permission_required("api.view_warehouse", raise_exception=True),
@@ -57,13 +58,13 @@ class WarehouseViewSet(viewsets.ModelViewSet):
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = Notification.objects.all()
     serializer_class = NotificationSerializer
-    authentication_classes = (BasicAuthentication,)
+    authentication_classes = (TokenAuthentication,)
 
 
 class VehicleViewSet(viewsets.ModelViewSet):
     queryset = Vehicle.objects.all()
     serializer_class = VehicleSerializer
-    authentication_classes = (BasicAuthentication,)
+    authentication_classes = (TokenAuthentication,)
     permission_classes = (
         IsAuthenticated,
         permission_required("api.view_vehicle", raise_exception=True),
@@ -76,7 +77,7 @@ class VehicleViewSet(viewsets.ModelViewSet):
 class DeliveryPointViewSet(viewsets.ModelViewSet):
     queryset = DeliveryPoint.objects.all()
     serializer_class = DeliveryPointSerializer
-    authentication_classes = (BasicAuthentication,)
+    authentication_classes = (TokenAuthentication,)
     permission_classes = (
         IsAuthenticated,
         permission_required("api.view_deliverypoint", raise_exception=True),
@@ -89,16 +90,16 @@ class DeliveryPointViewSet(viewsets.ModelViewSet):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    authentication_classes = (BasicAuthentication,)
+    authentication_classes = (TokenAuthentication,)
 
 
 class IssueViewSet(viewsets.ModelViewSet):
     queryset = Issue.objects.all()
     serializer_class = IssueSerializer
-    authentication_classes = (BasicAuthentication,)
+    authentication_classes = (TokenAuthentication,)
 
 
 class HasNotificationViewSet(viewsets.ModelViewSet):
     queryset = HasNotification.objects.all()
     serializer_class = HasNotificationSerializer
-    authentication_classes = (BasicAuthentication,)
+    authentication_classes = (TokenAuthentication,)
