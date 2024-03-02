@@ -23,6 +23,16 @@ router.register("has_notification", HasNotificationViewSet)
 
 urlpatterns = [
     path("v1/", include(router.urls)),
+    path(
+        "v1/orders/dashboard",
+        OrderViewSet.as_view({"get": "get_orders_by_today"}),
+        name="get_orders_by_today",
+    ),
+    path(
+        "v1/issues/dashboard",
+        IssueViewSet.as_view({"get": "get_issues_by_today"}),
+        name="get_orders_by_today",
+    ),
     path("auth/login", UserLoginView.as_view(), name="user_login"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh_view"),
 ]

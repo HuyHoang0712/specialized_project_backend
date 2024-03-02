@@ -12,7 +12,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     authentication_classes = (JWTAuthentication,)
 
     @action(detail=False, methods=["GET"])
-    def get_order_by_today(self, request, pk=None):
+    def get_orders_by_today(self, request, pk=None):
         q1 = Order.objects.filter(date=today)
         data = {}
         count = 0
