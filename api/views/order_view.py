@@ -26,7 +26,8 @@ class OrderViewSet(viewsets.ModelViewSet):
                 "date": order.date,
                 "time_in": order.time_in,
                 "payload": order.payload,
-                "pickup_id": order.pickup_id.id,
+                "pickup_point": order.pickup_id.name,
+                "delivery_point": order.delivery_id.name,
                 "employee_id": order.employee_id.id,
             }
             # data[count] = res
