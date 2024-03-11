@@ -13,23 +13,25 @@ class OrderViewSet(viewsets.ModelViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    @action(detail=False, methods=["GET"])
-    def get_orders_by_today(self, request, pk=None):
-        q1 = Order.objects.filter(date=today)
-        data = {}
-        count = 0
-        for x in q1:
+    @action(detail=False, methods=["post"])
+    def get_orders_by_date(self, request, pk=None):
+        qr_date = request.data["date"]
+        query_data = Order.objects.filter(date=qr_date)
+        data = []
+        # count = 0
+        for order in query_data:
             res = {
-                "id": x.id,
-                "ship_code": x.ship_code,
-                "date": x.date,
-                "time_in": x.time_in,
-                "payload": x.payload,
-                "pickup_id": x.pickup_id,
-                "employee_id": x.employee_id,
+                "id": order.id,
+                "ship_code": order.ship_code,
+                "date": order.date,
+                "time_in": order.time_in,
+                "payload": order.payload,
+                "pickup_id": order.pickup_id.id,
+                "employee_id": order.employee_id.id,
             }
-            data[count] = res
-            count += 1
+            # data[count] = res
+            # count += 1
+            data.append(res)
         return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["GET"])
