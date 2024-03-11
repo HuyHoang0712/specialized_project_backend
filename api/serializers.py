@@ -1,9 +1,12 @@
 from rest_framework import serializers
 from .models import *
 
+
 class UserLoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
+
+
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
@@ -43,7 +46,15 @@ class DeliveryPointSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ("ship_code", "date", "time_in", "payload", "pickup_id", "employee_id")
+        fields = (
+            "id",
+            "ship_code",
+            "date",
+            "time_in",
+            "payload",
+            "pickup_id",
+            "employee_id",
+        )
 
 
 class IssueSerializer(serializers.ModelSerializer):
