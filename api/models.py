@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 # Create your models here.
 
@@ -18,6 +19,10 @@ class Warehouse(models.Model):
     longitude = models.CharField(max_length=32)
     latitude = models.CharField(max_length=32)
     status = models.CharField(max_length=32)
+
+
+class TransportationPlan(models.Model):
+    date = models.DateField(default=timezone.now())
 
 
 class Notification(models.Model):
@@ -43,12 +48,15 @@ class DeliveryPoint(models.Model):
 
 class Order(models.Model):
     ship_code = models.CharField(max_length=32)
-    date = models.DateField()
+    date = models.DateField(default=timezone.now())
     time_in = models.TimeField()
     payload = models.CharField(max_length=32)
     pickup_id = models.ForeignKey(DeliveryPoint, on_delete=models.SET_NULL, null=True)
     # delivery_id = models.ForeignKey(DeliveryPoint, on_delete=models.SET_NULL, null=True)
     employee_id = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    plan_id = models.ForeignKey(
+        TransportationPlan, on_delete=models.SET_NULL, null=True
+    )
 
 
 class Issue(models.Model):
