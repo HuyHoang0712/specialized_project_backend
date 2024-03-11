@@ -13,7 +13,7 @@ class OrderViewSet(viewsets.ModelViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-    @action(detail=False, methods=["GET"])
+    @action(detail=False, methods=["GET"], url_path="get_orders_by_date")
     def get_orders_by_today(self, request, pk=None):
         q1 = Order.objects.filter(date=today)
         data = {}
