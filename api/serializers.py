@@ -10,19 +10,19 @@ class UserLoginSerializer(serializers.Serializer):
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
-        fields = ("id", "user", "name", "date_of_birth", "role", "status")
+        fields = ("id", "user", "name", "date_of_birth", "role", "email", "status")
 
 
 class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Warehouse
-        fields = ("id", "name", "address", "longitude", "latitude", "status")
+        fields = ("id", "name", "address", "longitude", "latitude")
 
 
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ("id", "title", "message", "date_time")
+        fields = ("id", "title", "message", "date_time", "employess")
 
 
 class VehicleSerializer(serializers.ModelSerializer):
@@ -33,14 +33,15 @@ class VehicleSerializer(serializers.ModelSerializer):
             "capacity",
             "fuel_consumption_level",
             "status",
-            "driver_id",
+            "brand",
+            "driver",
         )
 
 
-class DeliveryPointSerializer(serializers.ModelSerializer):
+class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DeliveryPoint
-        fields = ("name", "address", "longitude", "latitude")
+        model = Customer
+        fields = ("id", "name", "address", "longitude", "latitude")
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -52,8 +53,11 @@ class OrderSerializer(serializers.ModelSerializer):
             "date",
             "time_in",
             "payload",
-            "pickup_id",
-            "employee_id",
+            "pickup_point",
+            "delivery_point",
+            "employee",
+            "status",
+            "plan"
         )
 
 
@@ -61,19 +65,14 @@ class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
         fields = (
+            "id",
             "title",
             "description",
             "date_time",
             "status",
             "label",
-            "creator_id",
-            "order_id",
-            "vehicle_license_plate",
-            "warehouse_id",
+            "creator",
+            "order",
+            "vehicle",
+            "warehouse",
         )
-
-
-class HasNotificationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HasNotification
-        fields = ("notification_id", "employee_id")

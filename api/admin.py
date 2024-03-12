@@ -10,12 +10,11 @@ class EmployeeAdmin(admin.ModelAdmin):
 
 @admin.register(Warehouse)
 class WarehouseAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "address", "longitude", "latitude", "status"]
+    list_display = ["id", "name", "address", "longitude", "latitude"]
 
 
 admin.site.register(Notification)
 admin.site.register(Vehicle)
-admin.site.register(DeliveryPoint)
+admin.site.register(Customer)
 admin.site.register(Order)
 admin.site.register(Issue)
-admin.site.register(HasNotification)
