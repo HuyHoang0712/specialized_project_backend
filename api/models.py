@@ -4,7 +4,7 @@ from django.utils import timezone
 
 # Create your models here.
 
-STATUS_ORDER = [(0, "Pending"), (1, "In Progress"), (2, "Complented"), (3, "Cancel")]
+STATUS_ORDER = [(0, "Pending"), (1, "In Progress"), (2, "Completed"), (3, "Cancel")]
 
 STATUS_EMPL_VEHICLE = [
     (0, "Available"),
