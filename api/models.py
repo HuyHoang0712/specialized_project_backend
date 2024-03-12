@@ -1,72 +1,96 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
+from django.utils import timezone
 
 # Create your models here.
 
+STATUS_ORDER = [(0, "Pending"), (1, "In Progress"), (2, "Complented"), (3, "Cancel")]
+
+STATUS_EMPL_VEHICLE = [
+    (0, "Available"),
+    (1, "Busy"),
+    (2, "On Break"),
+]
+
 
 class Employee(models.Model):
+    id = models.CharField(primary_key=True, max_length=10)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=50, null=True)
     date_of_birth = models.DateField()
-    role = models.CharField(max_length=32)
-    status = models.CharField(max_length=32)
+    # role = models.CharField(max_length=32, null=True)
+    role = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True)
+    email = models.EmailField(max_length=254, null=True)
+    status = models.IntegerField(
+        default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
+    )
 
 
 class Warehouse(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=50)
     address = models.TextField()
     longitude = models.CharField(max_length=32)
     latitude = models.CharField(max_length=32)
-    status = models.CharField(max_length=32)
+
+
+class TransportationPlan(models.Model):
+    id = models.AutoField(primary_key=True)
+    date = models.DateField(default=timezone.now)
 
 
 class Notification(models.Model):
+    id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=32)
     message = models.TextField()
     date_time = models.DateTimeField()
+    employees = models.ManyToManyField(Employee)
 
 
 class Vehicle(models.Model):
     license_plate = models.CharField(max_length=32, primary_key=True)
-    capacity = models.IntegerField()
-    fuel_consumption_level = models.IntegerField()
-    status = models.CharField(max_length=32)
-    driver_id = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    capacity = models.IntegerField(null=False)
+    fuel_consumption_level = models.IntegerField(null=False)
+    status = models.IntegerField(
+        default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
+    )
+    brand = models.CharField(max_length=32, null=True)
+    driver = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
 
 
-class DeliveryPoint(models.Model):
-    name = models.CharField(max_length=50)
+class Customer(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=254)
     address = models.TextField()
-    longitude = models.CharField(max_length=32)
-    latitude = models.CharField(max_length=32)
+    longitude = models.CharField(max_length=254)
+    latitude = models.CharField(max_length=254)
 
 
 class Order(models.Model):
+    id = models.CharField(max_length=32, primary_key=True)
     ship_code = models.CharField(max_length=32)
-    date = models.DateField()
+    date = models.DateField(default=timezone.now)
     time_in = models.TimeField()
-    payload = models.CharField(max_length=32)
-    pickup_id = models.ForeignKey(DeliveryPoint, on_delete=models.SET_NULL, null=True)
-    # delivery_id = models.ForeignKey(DeliveryPoint, on_delete=models.SET_NULL, null=True)
-    employee_id = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    payload = models.IntegerField()
+    pickup_point = models.ForeignKey(
+        Customer, on_delete=models.SET_NULL, null=True, related_name="pickup_point"
+    )
+    delivery_point = models.ForeignKey(
+        Customer, on_delete=models.SET_NULL, null=True, related_name="delivery_point"
+    )
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
+    status = models.IntegerField(default=STATUS_ORDER[0][0], choices=STATUS_ORDER)
+    plan = models.ForeignKey(TransportationPlan, on_delete=models.SET_NULL, null=True)
 
 
 class Issue(models.Model):
-    title = models.CharField(max_length=32)
+    id = models.AutoField(primary_key=True)
+    title = models.CharField(max_length=254)
     description = models.TextField()
     date_time = models.DateTimeField()
-    status = models.CharField(max_length=32)
-    label = models.CharField(max_length=32)
-    creator_id = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
-    order_id = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
-    vehicle_license_plate = models.ForeignKey(
-        Vehicle, on_delete=models.SET_NULL, null=True
-    )
-    warehouse_id = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True)
-
-
-class HasNotification(models.Model):
-    notification_id = models.ForeignKey(
-        Notification, on_delete=models.SET_NULL, null=True
-    )
-    employee_id = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    status = models.IntegerField(default=STATUS_ORDER[0][0], choices=STATUS_ORDER)
+    label = models.CharField(max_length=254)
+    creator = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True)

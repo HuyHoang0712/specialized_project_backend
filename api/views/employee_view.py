@@ -1,5 +1,3 @@
-from api.models import Employee
-from api.serializers import EmployeeSerializer
 from .backend import *
 
 
