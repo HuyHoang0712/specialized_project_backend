@@ -1,5 +1,3 @@
-from api.models import Order
-from api.serializers import OrderSerializer
 from .backend import *
 from datetime import datetime
 

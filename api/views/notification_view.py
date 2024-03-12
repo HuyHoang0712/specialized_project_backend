@@ -1,5 +1,3 @@
-from api.models import Notification
-from api.serializers import NotificationSerializer
 from .backend import *
 
 

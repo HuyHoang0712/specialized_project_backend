@@ -1,5 +1,3 @@
-from api.models import Warehouse
-from api.serializers import WarehouseSerializer
 from .backend import *
 
 

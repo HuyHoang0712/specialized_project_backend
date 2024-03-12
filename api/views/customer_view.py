@@ -1,5 +1,3 @@
-from api.models import Customer
-from api.serializers import CustomerSerializer
 from .backend import *
 
 

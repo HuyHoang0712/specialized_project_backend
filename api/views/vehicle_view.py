@@ -1,5 +1,3 @@
-from api.models import Vehicle
-from api.serializers import VehicleSerializer
 from .backend import *
 
 

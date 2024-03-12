@@ -1,5 +1,3 @@
-from api.models import Issue
-from api.serializers import IssueSerializer
 from .backend import *
 from datetime import datetime, timedelta
 
