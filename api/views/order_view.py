@@ -24,3 +24,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         queryset = Order.objects.filter(plan=qr_plan)
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"], url_path="get_orders_by_id")
+    def get_orders_by_id(self, request, pk=None):
+        qr_id = request.data["id"]
+        queryset = Order.objects.filter(id=qr_id)
+        serializer = OrderDetailSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
