@@ -14,7 +14,6 @@ class OrderViewSet(viewsets.ModelViewSet):
     authentication_classes = ()
     permission_classes = ()
 
-<<<<<<< Updated upstream
     @action(detail=False, methods=["post"])
     def get_orders_by_date(self, request, pk=None):
         qr_date = request.data["date"]
@@ -34,23 +33,6 @@ class OrderViewSet(viewsets.ModelViewSet):
             }
             # data[count] = res
             # count += 1
-=======
-    @action(detail=False, methods=["GET"], url_path="get_orders_by_date")
-    def get_orders_by_today(self, request, pk=None):
-        q1 = Order.objects.filter(date=today)
-        data = []
-        for x in q1:
-            res = {
-                "id": x.id,
-                "ship_code": x.ship_code,
-                "date": x.date,
-                "time_in": x.time_in,
-                "payload": x.payload,
-                "pickup_id": x.pickup_id.id,
-                "employee_id": x.employee_id.id,
-                "plan_id": x.plan_id.id,
-            }
->>>>>>> Stashed changes
             data.append(res)
         return Response(data, status=status.HTTP_200_OK)
 
