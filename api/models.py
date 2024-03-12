@@ -75,7 +75,7 @@ class Order(models.Model):
     pickup_point = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, related_name="pickup_id")
     delivery_point = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, related_name="delivery_id")
     employee = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
-    status = models.IntegerField(default=STATUS_ORDER[0][0], choices=STATUS_ORDER, db_column="status")
+    status = models.IntegerField(default=STATUS_ORDER[0][0], choices=STATUS_ORDER)
     plan = models.ForeignKey(
         TransportationPlan, on_delete=models.SET_NULL, null=True
     )
