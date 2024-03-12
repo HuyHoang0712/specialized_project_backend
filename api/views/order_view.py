@@ -19,39 +19,57 @@ class OrderViewSet(viewsets.ModelViewSet):
         qr_date = request.data["date"]
         query_data = Order.objects.filter(date=qr_date)
         data = []
-        # count = 0
+        pickup_point = ""
+        delivery_point = ""
+        employee_id = ""
         for order in query_data:
+            # Handle null data
+            if order.pickup_id:
+                pickup_point = order.pickup_id.id
+            if order.delivery_id:
+                delivery_point = order.delivery_id.id
+            if order.employee_id:
+                employee_id = order.employee_id.id
+            # Return order object
             res = {
                 "id": order.id,
                 "ship_code": order.ship_code,
                 "date": order.date,
                 "time_in": order.time_in,
                 "payload": order.payload,
-                "pickup_point": order.pickup_id.name,
-                "delivery_point": order.delivery_id.name,
-                "employee_id": order.employee_id.id,
+                "pickup_point": pickup_point,
+                "delivery_point": delivery_point,
+                "employee_id": employee_id,
             }
-            # data[count] = res
-            # count += 1
             data.append(res)
         return Response(data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["POST"], url_path="get_orders_by_plan")
     def get_all_orders_in_transportation_plan(self, request, pk=None):
-        body_unicode = request.body.decode("utf-8")
-        body_data = json.loads(body_unicode)
-        q1 = Order.objects.filter(plan_id=body_data["plan_id"])
+        qr_plan_id = request.data["plan_id"]
+        query_data = Order.objects.filter(plan_id=qr_plan_id)
         data = []
-        for x in q1:
+        pickup_point = ""
+        delivery_point = ""
+        employee_id = ""
+        for order in query_data:
+            # Handle null data
+            if order.pickup_id:
+                pickup_point = order.pickup_id.id
+            if order.delivery_id:
+                delivery_point = order.delivery_id.id
+            if order.employee_id:
+                employee_id = order.employee_id.id
+            # Return object
             res = {
-                "id": x.id,
-                "ship_code": x.ship_code,
-                "date": x.date,
-                "time_in": x.time_in,
-                "payload": x.payload,
-                "pickup_id": x.pickup_id.id,
-                "employee_id": x.employee_id.id,
-                "plan_id": x.plan_id.id,
+                "id": order.id,
+                "ship_code": order.ship_code,
+                "date": order.date,
+                "time_in": order.time_in,
+                "payload": order.payload,
+                "pickup_point": pickup_point,
+                "delivery_point": delivery_point,
+                "employee_id": employee_id,
             }
             data.append(res)
         return Response(data, status=status.HTTP_200_OK)

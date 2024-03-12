@@ -19,7 +19,17 @@ class TransportationPlan(admin.ModelAdmin):
 
 
 admin.site.register(Notification)
-admin.site.register(Vehicle)
+
+
+@admin.register(Vehicle)
+class Vehicle(admin.ModelAdmin):
+    list_display = [
+        "license_plate",
+        "capacity",
+        "fuel_consumption_level",
+        "status",
+        "driver_id",
+    ]
 
 
 @admin.register(Order)

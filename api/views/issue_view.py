@@ -17,20 +17,33 @@ class IssueViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["GET"])
     def get_issues_by_today(self, request, pk=None):
-        print(end)
-        q1 = Issue.objects.filter(date_time__range=(start, end))
+        issues = Issue.objects.filter(date_time__range=(start, end))
+        creator_id = ""
+        order_id = ""
+        vehicle_license_plate = ""
+        warehouse_id = ""
         data = []
-        for x in q1:
+        for issue in issues:
+            # Handle null data
+            if issue.creator_id:
+                creator_id = issue.creator_id.id
+            if issue.order_id:
+                order_id = issue.order_id.id
+            if issue.vehicle_license_plate:
+                vehicle_license_plate = issue.vehicle_license_plate.license_plate
+            if issue.warehouse_id:
+                warehouse_id = issue.warehouse_id.id
+            # Return issue object
             res = {
-                "title": x.title,
-                "description": x.description,
-                "date_time": x.date_time,
-                "status": x.status,
-                "label": x.label,
-                "creator_id": x.creator_id.id,
-                "order_id": x.order_id.id,
-                "vehicle_license_plate": x.vehicle_license_plate.license_plate,
-                "warehouse_id": x.warehouse_id.id,
+                "title": issue.title,
+                "description": issue.description,
+                "date_time": issue.date_time,
+                "status": issue.status,
+                "label": issue.label,
+                "creator_id": creator_id,
+                "order_id": order_id,
+                "vehicle_license_plate": vehicle_license_plate,
+                "warehouse_id": warehouse_id,
             }
             data.append(res)
         return Response(data, status=status.HTTP_200_OK)
