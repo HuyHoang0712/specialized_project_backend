@@ -19,8 +19,7 @@ class IssueViewSet(viewsets.ModelViewSet):
     def get_issues_by_today(self, request, pk=None):
         print(end)
         q1 = Issue.objects.filter(date_time__range=(start, end))
-        data = {}
-        count = 0
+        data = []
         for x in q1:
             res = {
                 "title": x.title,
@@ -28,11 +27,10 @@ class IssueViewSet(viewsets.ModelViewSet):
                 "date_time": x.date_time,
                 "status": x.status,
                 "label": x.label,
-                "creator_id": x.creator_id,
-                "order_id": x.order_id,
-                "vehicle_license_plate": x.vehicle_license_plate,
-                "warehouse_id": x.warehouse_id,
+                "creator_id": x.creator_id.id,
+                "order_id": x.order_id.id,
+                "vehicle_license_plate": x.vehicle_license_plate.license_plate,
+                "warehouse_id": x.warehouse_id.id,
             }
-            data[count] = res
-            count += 1
+            data.append(res)
         return Response(data, status=status.HTTP_200_OK)

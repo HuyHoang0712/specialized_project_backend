@@ -13,9 +13,33 @@ class WarehouseAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "address", "longitude", "latitude", "status"]
 
 
+@admin.register(TransportationPlan)
+class TransportationPlan(admin.ModelAdmin):
+    list_display = ["id", "date"]
+
+
 admin.site.register(Notification)
 admin.site.register(Vehicle)
-admin.site.register(DeliveryPoint)
-admin.site.register(Order)
+
+
+@admin.register(Order)
+class Order(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "ship_code",
+        "date",
+        "time_in",
+        "payload",
+        "pickup_id",
+        "employee_id",
+        "plan_id",
+    ]
+
+
+@admin.register(DeliveryPoint)
+class DeliveryPoint(admin.ModelAdmin):
+    list_display = ["name", "address", "longitude", "latitude"]
+
+
 admin.site.register(Issue)
 admin.site.register(HasNotification)

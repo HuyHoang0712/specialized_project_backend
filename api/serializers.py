@@ -54,6 +54,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "payload",
             "pickup_id",
             "employee_id",
+            "plan_id",
         )
 
 

@@ -10,7 +10,7 @@ class Employee(models.Model):
     name = models.CharField(max_length=50)
     date_of_birth = models.DateField()
     role = models.CharField(max_length=32)
-    status = models.CharField(max_length=32)
+    status = models.PositiveSmallIntegerField(default=1)
 
 
 class Warehouse(models.Model):
@@ -18,7 +18,7 @@ class Warehouse(models.Model):
     address = models.TextField()
     longitude = models.CharField(max_length=32)
     latitude = models.CharField(max_length=32)
-    status = models.CharField(max_length=32)
+    status = models.PositiveSmallIntegerField(default=1)
 
 
 class TransportationPlan(models.Model):
@@ -35,7 +35,7 @@ class Vehicle(models.Model):
     license_plate = models.CharField(max_length=32, primary_key=True)
     capacity = models.IntegerField()
     fuel_consumption_level = models.IntegerField()
-    status = models.CharField(max_length=32)
+    status = models.PositiveSmallIntegerField(default=1)
     driver_id = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
 
 
@@ -49,6 +49,7 @@ class DeliveryPoint(models.Model):
 class Order(models.Model):
     ship_code = models.CharField(max_length=32)
     date = models.DateField(default=timezone.now())
+    status = models.PositiveSmallIntegerField(default=2)
     time_in = models.TimeField()
     payload = models.CharField(max_length=32)
     pickup_id = models.ForeignKey(DeliveryPoint, on_delete=models.SET_NULL, null=True,  related_name="pickup_id")
@@ -63,7 +64,7 @@ class Issue(models.Model):
     title = models.CharField(max_length=32)
     description = models.TextField()
     date_time = models.DateTimeField()
-    status = models.CharField(max_length=32)
+    status = models.PositiveSmallIntegerField(default=2)
     label = models.CharField(max_length=32)
     creator_id = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
     order_id = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
