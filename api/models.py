@@ -1,15 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.utils import timezone
 
 # Create your models here.
 
-STATUS_ORDER = [
-    (0, "Pending"),
-    (1, "In Progress"),
-    (2, "Complented"),
-    (3, "Cancel")
-]
+STATUS_ORDER = [(0, "Pending"), (1, "In Progress"), (2, "Complented"), (3, "Cancel")]
 
 STATUS_EMPL_VEHICLE = [
     (0, "Available"),
@@ -23,9 +18,12 @@ class Employee(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     name = models.CharField(max_length=50, null=True)
     date_of_birth = models.DateField()
-    role = models.CharField(max_length=32, null=True)
+    # role = models.CharField(max_length=32, null=True)
+    role = models.ForeignKey(Group, on_delete=models.SET_NULL, null=True)
     email = models.EmailField(max_length=254, null=True)
-    status = models.IntegerField(default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE)
+    status = models.IntegerField(
+        default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
+    )
 
 
 class Warehouse(models.Model):
@@ -53,7 +51,9 @@ class Vehicle(models.Model):
     license_plate = models.CharField(max_length=32, primary_key=True)
     capacity = models.IntegerField(null=False)
     fuel_consumption_level = models.IntegerField(null=False)
-    status = models.IntegerField(default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE)
+    status = models.IntegerField(
+        default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
+    )
     brand = models.CharField(max_length=32, null=True)
     driver = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
 
@@ -72,13 +72,15 @@ class Order(models.Model):
     date = models.DateField(default=timezone.now)
     time_in = models.TimeField()
     payload = models.IntegerField()
-    pickup_point = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, related_name="pickup_point")
-    delivery_point = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True, related_name="delivery_point")
+    pickup_point = models.ForeignKey(
+        Customer, on_delete=models.SET_NULL, null=True, related_name="pickup_point"
+    )
+    delivery_point = models.ForeignKey(
+        Customer, on_delete=models.SET_NULL, null=True, related_name="delivery_point"
+    )
     vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
     status = models.IntegerField(default=STATUS_ORDER[0][0], choices=STATUS_ORDER)
-    plan = models.ForeignKey(
-        TransportationPlan, on_delete=models.SET_NULL, null=True
-    )
+    plan = models.ForeignKey(TransportationPlan, on_delete=models.SET_NULL, null=True)
 
 
 class Issue(models.Model):
@@ -90,8 +92,5 @@ class Issue(models.Model):
     label = models.CharField(max_length=254)
     creator = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True)
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True)
-    vehicle = models.ForeignKey(
-        Vehicle, on_delete=models.SET_NULL, null=True
-    )
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
     warehouse = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True)
-
