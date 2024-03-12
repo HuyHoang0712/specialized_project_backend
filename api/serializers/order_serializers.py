@@ -3,6 +3,7 @@ from api.models import *
 from .employee_serializers import *
 from .vehicle_serializers import *
 
+
 class OrderSerializer(serializers.ModelSerializer):
     pickup_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
     delivery_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
@@ -26,7 +27,11 @@ class OrderSerializer(serializers.ModelSerializer):
 class OrderDetailSerializer(serializers.ModelSerializer):
     pickup_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
     delivery_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
-    employee = EmployeeSerializer(read_only=True, many=False, )
+    vehicle = VehicleDetailSerializer(
+        read_only=True,
+        many=False,
+    )
+
     class Meta:
         model = Order
         fields = [
@@ -37,7 +42,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "payload",
             "pickup_point",
             "delivery_point",
-            "employee",
+            "vehicle",
             "status",
             "plan",
         ]
