@@ -19,6 +19,12 @@ class WarehouseSerializer(serializers.ModelSerializer):
         fields = ("id", "name", "address", "longitude", "latitude")
 
 
+class TransportationPlanSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TransportationPlan
+        fields = ("id", "date")
+
+
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
@@ -57,7 +63,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "delivery_point",
             "employee",
             "status",
-            "plan"
+            "plan",
         )
 
 

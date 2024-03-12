@@ -19,7 +19,6 @@ router.register("orders", OrderViewSet)
 router.register("issues", IssueViewSet)
 
 
-
 urlpatterns = [
     path("v1/", include(router.urls)),
     path("auth/login", UserLoginView.as_view(), name="user_login"),
