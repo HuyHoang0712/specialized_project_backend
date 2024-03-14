@@ -9,7 +9,7 @@ end = datetime.today().now().replace(
 
 
 class IssueViewSet(viewsets.ModelViewSet):
-    queryset = Issue.objects.all().order_by("-date_time").values()
+    queryset = Issue.objects.all().order_by("-date_time")
     serializer_class = IssueSerializer
     authentication_classes = (JWTAuthentication,)
 
@@ -17,5 +17,12 @@ class IssueViewSet(viewsets.ModelViewSet):
     def get_issues_by_date(self, request, pk=None):
         qr_date = request.data["date"]
         queryset = Issue.objects.filter(date_time=qr_date)
+        serializer = IssueSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def get_issues_by_status(self, request, pk=None):
+        qr_status = request.query_params["status"]
+        queryset = Issue.objects.filter(status=qr_status).order_by("-date_time")
         serializer = IssueSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
