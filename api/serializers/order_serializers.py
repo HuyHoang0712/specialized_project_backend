@@ -7,7 +7,6 @@ from .vehicle_serializers import *
 class OrderSerializer(serializers.ModelSerializer):
     pickup_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
     delivery_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
-
     class Meta:
         model = Order
         fields = (
@@ -22,6 +21,23 @@ class OrderSerializer(serializers.ModelSerializer):
             "status",
             "plan",
         )
+
+    def to_representation(self, instance):
+        issues = Issue.objects.filter(order_id=instance.id).count()
+
+        return {
+            "id": instance.id,
+            "ship_code": instance.ship_code,
+            "date": instance.date,
+            "time_in": instance.time_in,
+            "payload": instance.payload,
+            "pickup_point": instance.pickup_point.name,
+            "delivery_point": instance.delivery_point.name,
+            "vehicle": instance.vehicle.license_plate,
+            "status": instance.status,
+            "issues_count": issues
+            # "plan": instance.plan.id,
+        }
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
