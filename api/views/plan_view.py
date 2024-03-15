@@ -37,6 +37,8 @@ class PlanViewSet(viewsets.ModelViewSet):
                 customer = {
                     "ship_code": "",
                     "contact_name": "",
+                    "longtitude": "",
+                    "latitude": "",
                     "order_type": "",
                     "total_tons": "",
                 }
@@ -51,7 +53,15 @@ class PlanViewSet(viewsets.ModelViewSet):
                     elif count == 3:
                         customer["total_tons"] = math.ceil(reader.iloc[i, i1] * 1000)
                     count += 1
+                qr_contact_name = customer["contact_name"]
+                queryset = Customer.objects.filter(
+                    name__icontains=qr_contact_name
+                ).values()
+                if queryset:
+                    # print(True)
+                    customer["longtitude"] = queryset[0]["longitude"]
+                    customer["latitude"] = queryset[0]["latitude"]
+                else:
+                    print(False)
                 customers.append(customer)
-            print(customers)
-
         return Response(customers, status=status.HTTP_200_OK)
