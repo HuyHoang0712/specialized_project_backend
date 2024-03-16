@@ -5,8 +5,6 @@ from .vehicle_serializers import *
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    pickup_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
-    delivery_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
     class Meta:
         model = Order
         fields = (
@@ -36,7 +34,6 @@ class OrderSerializer(serializers.ModelSerializer):
             "vehicle": instance.vehicle.license_plate,
             "status": instance.status,
             "issues_count": issues
-            # "plan": instance.plan.id,
         }
 
 

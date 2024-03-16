@@ -54,7 +54,7 @@ class Vehicle(models.Model):
         default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
     )
     brand = models.CharField(default=None, max_length=32, blank=True)
-    driver = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    driver = models.OneToOneField(Employee, on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class Customer(models.Model):

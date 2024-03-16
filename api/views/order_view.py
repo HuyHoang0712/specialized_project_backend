@@ -6,10 +6,11 @@ today = datetime.today().strftime("%Y-%m-%d")
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-    authentication_classes = (JWTAuthentication,)
-    # authentication_classes = ()
-    # permission_classes = ()
+    serializer_class = ()
+    # authentication_classes = (JWTAuthentication,)
+
+    authentication_classes = ()
+    permission_classes = ()
 
     @action(detail=False, methods=["get"])
     def get_orders_by_date(self, request, pk=None):
@@ -32,19 +33,16 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer = OrderDetailSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(
-        detail=True,
-        methods=["patch"],
-    )
-    def upldate_data(self, request, id):
-        try:
-            order = Order.objects.get(id=id)
-        except Order.DoesNotExist:
-            return Response(
-                status=status.HTTP_404_NOT_FOUND,
-            )
-        serializer = OrderDetailSerializer(order, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    @action(detail=False, methods=["patch"])
+    def update_order(self, request):
+        qr_id = request.query_params["id"]
+        order = Order.objects.get(id=qr_id)
+        if order:
+            serializer = OrderSerializer(order, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response("Order is not founded!", status=status.HTTP_404_NOT_FOUND)
+
