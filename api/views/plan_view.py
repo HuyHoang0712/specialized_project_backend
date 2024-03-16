@@ -57,7 +57,7 @@ class PlanViewSet(viewsets.ModelViewSet):
                 count += 1
             qr_contact_name = customer["contact_name"]
             queryset = Customer.objects.filter(
-                name__istartswith=qr_contact_name.split(" ", 1)[0]
+                name__unaccent__icontains=qr_contact_name.strip()
             ).values()
             for item in queryset:
                 if qr_contact_name.replace(" ", "") == item["name"].replace(" ", ""):
