@@ -31,3 +31,20 @@ class OrderViewSet(viewsets.ModelViewSet):
         queryset = Order.objects.filter(id=qr_id)
         serializer = OrderDetailSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=["patch"],
+    )
+    def upldate_data(self, request, id):
+        try:
+            order = Order.objects.get(id=id)
+        except Order.DoesNotExist:
+            return Response(
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        serializer = OrderDetailSerializer(order, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
