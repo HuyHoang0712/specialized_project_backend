@@ -7,9 +7,9 @@ today = datetime.today().strftime("%Y-%m-%d")
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    # authentication_classes = (JWTAuthentication,)
-    authentication_classes = ()
-    permission_classes = ()
+    authentication_classes = (JWTAuthentication,)
+    # authentication_classes = ()
+    # permission_classes = ()
 
     @action(detail=False, methods=["get"])
     def get_orders_by_date(self, request, pk=None):
