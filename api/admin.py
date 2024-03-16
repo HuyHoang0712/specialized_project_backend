@@ -55,4 +55,4 @@ class Order(admin.ModelAdmin):
 
 @admin.register(Customer)
 class Customer(admin.ModelAdmin):
-    list_display = ["id", "name", "address"]
+    list_display = ["id", "name", "address", "longitude", "latitude"]

@@ -4,6 +4,7 @@ import pandas as pd
 import math
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import FileUploadParser
+
 today = datetime.today().strftime("%Y-%m-%d")
 
 
@@ -24,15 +25,15 @@ class PlanViewSet(viewsets.ModelViewSet):
     @parser_classes([FileUploadParser])
     def file_upload(self, request):
 
-        data = request.data['file']
+        data = request.data["file"]
         reader = pd.read_excel(
             data,
             sheet_name=0,
             header=2,
         )
-        print(reader.shape[0])
         # print(reader.loc[0])
         customers = []
+        unknow_customers = []
         label_index = [0, 1, 4, 16]
         for i in range(0, reader.shape[0]):
             customer = {
@@ -56,14 +57,18 @@ class PlanViewSet(viewsets.ModelViewSet):
                 count += 1
             qr_contact_name = customer["contact_name"]
             queryset = Customer.objects.filter(
-                name__icontains=qr_contact_name
+                name__istartswith=qr_contact_name.split(" ", 1)[0]
             ).values()
-            if queryset:
-                # print(True)
-                customer["longtitude"] = queryset[0]["longitude"]
-                customer["latitude"] = queryset[0]["latitude"]
-            else:
-                print(False)
+            for item in queryset:
+                if qr_contact_name.replace(" ", "") == item["name"].replace(" ", ""):
+                    # print(True)
+                    customer["longtitude"] = item["longitude"]
+                    customer["latitude"] = item["latitude"]
+                else:
+                    unknow_customers.append(qr_contact_name)
             customers.append(customer)
-
+        if len(unknow_customers) != 0:
+            res = []
+            [res.append(x) for x in unknow_customers if x not in res]
+            return Response(res, status=status.HTTP_204_NO_CONTENT)
         return Response(customers, status=status.HTTP_200_OK)
