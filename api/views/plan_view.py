@@ -28,6 +28,9 @@ class PlanViewSet(viewsets.ModelViewSet):
         data = request.data["file"]
         reader = pd.read_excel(data, sheet_name=0, header=2)
         label_index = [0, 1, 4, 16]
+        customers = []
+        unknow_customers = []
+
         for i in range(0, reader.shape[0]):
             customer = {
                 "ship_code": "",
