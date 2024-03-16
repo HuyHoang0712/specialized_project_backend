@@ -59,13 +59,19 @@ class PlanViewSet(viewsets.ModelViewSet):
             queryset = Customer.objects.filter(
                 name__unaccent__icontains=qr_contact_name.strip()
             ).values()
-            for item in queryset:
-                if qr_contact_name.replace(" ", "") == item["name"].replace(" ", ""):
-                    # print(True)
-                    customer["longtitude"] = item["longitude"]
-                    customer["latitude"] = item["latitude"]
-                else:
-                    unknow_customers.append(qr_contact_name)
+            # for item in queryset:
+            #     if qr_contact_name.replace(" ", "") == item["name"].replace(" ", ""):
+            #         # print(True)
+            #         customer["longtitude"] = item["longitude"]
+            #         customer["latitude"] = item["latitude"]
+            #     else:
+            #         unknow_customers.append(qr_contact_name)
+            if queryset:
+                item = queryset[0]
+                customer["longtitude"] = item["longitude"]
+                customer["latitude"] = item["latitude"]
+            else:
+                unknow_customers.append(qr_contact_name)
             customers.append(customer)
         if len(unknow_customers) != 0:
             res = []
