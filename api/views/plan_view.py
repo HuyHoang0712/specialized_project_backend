@@ -12,6 +12,7 @@ class PlanViewSet(viewsets.ModelViewSet):
     queryset = TransportationPlan.objects.all()
     serializer_class = TransportationPlanSerializer
     authentication_classes = (JWTAuthentication,)
+
     # authentication_classes = ()
     # permission_classes = ()
 
@@ -24,16 +25,8 @@ class PlanViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     @parser_classes([FileUploadParser])
     def file_upload(self, request):
-
         data = request.data["file"]
-        reader = pd.read_excel(
-            data,
-            sheet_name=0,
-            header=2,
-        )
-        # print(reader.loc[0])
-        customers = []
-        unknow_customers = []
+        reader = pd.read_excel(data, sheet_name=0, header=2)
         label_index = [0, 1, 4, 16]
         for i in range(0, reader.shape[0]):
             customer = {
@@ -59,19 +52,13 @@ class PlanViewSet(viewsets.ModelViewSet):
             queryset = Customer.objects.filter(
                 name__unaccent__icontains=qr_contact_name.strip()
             ).values()
-            # for item in queryset:
-            #     if qr_contact_name.replace(" ", "") == item["name"].replace(" ", ""):
-            #         # print(True)
-            #         customer["longtitude"] = item["longitude"]
-            #         customer["latitude"] = item["latitude"]
-            #     else:
-            #         unknow_customers.append(qr_contact_name)
-            if queryset:
-                item = queryset[0]
-                customer["longtitude"] = item["longitude"]
-                customer["latitude"] = item["latitude"]
-            else:
-                unknow_customers.append(qr_contact_name)
+            for item in queryset:
+                if qr_contact_name.replace(" ", "") == item["name"].replace(" ", ""):
+                    # print(True)
+                    customer["longtitude"] = item["longitude"]
+                    customer["latitude"] = item["latitude"]
+                else:
+                    unknow_customers.append(qr_contact_name)
             customers.append(customer)
         if len(unknow_customers) != 0:
             res = []
