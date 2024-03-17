@@ -4,6 +4,8 @@ import pandas as pd
 import math
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import FileUploadParser
+from ..utils.distribute_order_service.customSVRP import main
+
 
 today = datetime.today().strftime("%Y-%m-%d")
 
@@ -27,7 +29,7 @@ class PlanViewSet(viewsets.ModelViewSet):
     def file_upload(self, request):
         data = request.data["file"]
         reader = pd.read_excel(data, sheet_name=0, header=2)
-        label_index = [0, 1, 4, 16]
+        label_index = [0, 1, 4, 16]  # The column index in excel file need to get data
         customers = []
         unknow_customers = []
 
@@ -35,6 +37,7 @@ class PlanViewSet(viewsets.ModelViewSet):
             customer = {
                 "ship_code": "",
                 "contact_name": "",
+                "customer_id": "",
                 "longtitude": "",
                 "latitude": "",
                 "order_type": "",
@@ -57,14 +60,18 @@ class PlanViewSet(viewsets.ModelViewSet):
             ).values()
             for item in queryset:
                 if qr_contact_name.replace(" ", "") == item["name"].replace(" ", ""):
-                    # print(True)
+                    customer["customer_id"] = item["id"]
                     customer["longtitude"] = item["longitude"]
                     customer["latitude"] = item["latitude"]
                 else:
                     unknow_customers.append(qr_contact_name)
             customers.append(customer)
         if len(unknow_customers) != 0:
+            # If existing unknow customer, request user to input data
             res = []
             [res.append(x) for x in unknow_customers if x not in res]
             return Response(res, status=status.HTTP_204_NO_CONTENT)
+        else:
+            # Call VRP algorithm
+            main(self, customers)
         return Response(customers, status=status.HTTP_200_OK)

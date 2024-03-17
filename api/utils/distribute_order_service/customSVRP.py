@@ -2,57 +2,29 @@ import math
 import random
 from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
+from ...views.backend import *
+import requests
+import math
 
 END_TIME = 960
 START_TIME = 240
 AVAILABLE_TIME = 480
 
-TIME_MATRIX = [
-    [0, 32, 36, 50, 32, 21, 37, 42, 32, 32, 28],
-    [32, 0, 42, 62, 45, 22, 46, 49, 48, 48, 42],
-    [36, 42, 0, 21, 3, 22, 5, 10, 10, 10, 12],
-    [50, 62, 21, 0, 19, 43, 16, 18, 18, 18, 23],
-    [32, 45, 3, 19, 0, 25, 3, 7, 12, 12, 12],
-    [21, 22, 22, 43, 25, 0, 25, 28, 30, 30, 25],
-    [37, 46, 5, 16, 3, 25, 0, 4, 8, 8, 12],
-    [42, 49, 10, 18, 7, 28, 4, 0, 15, 15, 16],
-    [32, 48, 10, 18, 10, 30, 8, 15, 0, 0, 16],
-    [32, 48, 10, 18, 10, 30, 8, 15, 0, 0, 5],
-    [28, 42, 12, 23, 12, 25, 12, 16, 16, 5, 0]
-]
+TIME_MATRIX = []
 
-DISTANCE_MATRIX = [
-    [0, 27000, 30000, 42000, 27000, 18000, 31000, 35000, 27000, 27000, 24000],
-    [27000, 0, 35100, 52200, 37400, 18900, 38600, 41600, 40300, 40300, 35400],
-    [30000, 35100, 0, 18000, 2900, 18900, 4500, 8700, 9100, 9100, 10700],
-    [42000, 52200, 18000, 0, 15900, 36400, 13700, 15600, 15700, 15700, 19600],
-    [27000, 37400, 2900, 15900, 0, 21700, 2600, 6000, 9900, 9900, 10500],
-    [18000, 18900, 18900, 36400, 21700, 0, 20800, 23900, 25700, 25700, 21500],
-    [31000, 38600, 4500, 13700, 2600, 20800, 0, 3800, 6800, 6800, 10100],
-    [35000, 41600, 8700, 15600, 6000, 23900, 3800, 0, 12300, 12300, 13900],
-    [27000, 40300, 9100, 15700, 9000, 25700, 6800, 12300, 0, 500, 13900],
-    [27000, 40300, 9100, 15700, 9000, 25700, 6800, 12300, 500, 0, 4300],
-    [24000, 35400, 10700, 19600, 10500, 21500, 10100, 13900, 13900, 4300, 0]
-]
+DISTANCE_MATRIX = []
 
-TIME_WINDOWS = [
-    (4, 16),
-    (4, 16),
-    (4, 16),
-    (4, 16),
-    (4, 16),
-    (4, 16),
-    (4, 16),
-    (4, 16),
-    (4, 16),
-    (4, 16),
-    (4, 16),
-]
+TIME_WINDOWS = []
 
 
 class SVRPSolution:
-    def __init__(self, num_vehicles: int, num_customers: int, vehicle_capacity: list[int],
-                 customer_demands: list[(int, int)]):
+    def __init__(
+        self,
+        num_vehicles: int,
+        num_customers: int,
+        vehicle_capacity: list[int],
+        customer_demands: list[(int, int)],
+    ):
         self.num_vehicles = num_vehicles
         self.num_customers = num_customers
         self.vehicle_capacity = vehicle_capacity
@@ -78,11 +50,15 @@ class SVRPSolution:
             if cur_demand >= vehicle_cap:
                 cur_demand -= vehicle_cap
                 self.split_deliveries[vehicle_idx][customer[1]] = vehicle_cap
-                self.vehicle_use[vehicle_idx] += math.floor(TIME_MATRIX[0][customer[1]] * 2.2)
+                self.vehicle_use[vehicle_idx] += math.floor(
+                    TIME_MATRIX[0][customer[1]] * 2.2
+                )
             elif cur_demand / vehicle_cap >= 0.9:
                 self.split_deliveries[vehicle_idx][customer[1]] = cur_demand
                 self.customer_demands[cur_order_idx] = (0, customer[1])
-                self.vehicle_use[vehicle_idx] += math.floor(TIME_MATRIX[0][customer[1]] * 2.2)
+                self.vehicle_use[vehicle_idx] += math.floor(
+                    TIME_MATRIX[0][customer[1]] * 2.2
+                )
                 return
             else:
                 self.customer_demands[cur_order_idx] = (cur_demand, customer[1])
@@ -121,7 +97,8 @@ def tabu_search(initial_solution):
         from_node = manager.IndexToNode(from_index)
         to_node = manager.IndexToNode(to_index)
         return math.floor(TIME_MATRIX[from_node][to_node] * 1.1) + math.floor(
-            initial_solution.customer_demands[to_node][0] * 0.02)
+            initial_solution.customer_demands[to_node][0] * 0.02
+        )
 
     time_callback_index = routing.RegisterTransitCallback(time_callback)
 
@@ -156,13 +133,16 @@ def tabu_search(initial_solution):
         if location_idx == 0:
             continue
         index = manager.NodeToIndex(location_idx)
-        time_dimension.CumulVar(index).SetRange(time_window[0] * 60, time_window[1] * 60)
+        time_dimension.CumulVar(index).SetRange(
+            time_window[0] * 60, time_window[1] * 60
+        )
     # Add time window constraints for each vehicle start node.
     depot_idx = 0
     for vehicle_id in range(initial_solution.num_vehicles):
         index = routing.Start(vehicle_id)
         time_dimension.CumulVar(index).SetRange(
-            initial_solution.vehicle_use[vehicle_id] + 240, TIME_WINDOWS[depot_idx][1] * 60
+            initial_solution.vehicle_use[vehicle_id] + 240,
+            TIME_WINDOWS[depot_idx][1] * 60,
         )
 
     def demand_callback(from_index):
@@ -210,7 +190,9 @@ def print_solution(data, manager, routing, solution):
     total_load = 0
     for vehicle_id in range(data.num_vehicles):
         index = routing.Start(vehicle_id)
-        plan_output = f"Route for vehicle {vehicle_id} - {data.vehicle_capacity[vehicle_id]} :\n"
+        plan_output = (
+            f"Route for vehicle {vehicle_id} - {data.vehicle_capacity[vehicle_id]} :\n"
+        )
         route_distance = 0
         route_load = 0
         while not routing.IsEnd(index):
@@ -241,14 +223,61 @@ def print_solution(data, manager, routing, solution):
     print(f"Total time of all routes: {total_time}min")
 
 
-def main():
+def main(self, customers):
+    # Get the active vehicle
+    active_vehicles = Vehicle.objects.filter(status=0).values()
+
     # Define the data for the SVRP
-    num_vehicles = 6
-    num_customers = 11
-    vehicle_list = [(7500, 22), (5000, 20), (9300, 22), (9300, 22), (7000, 22), (7000, 22)]
-    vehicle_capacity = [7500, 5000, 9300, 9300, 7000, 7000]
-    customer_demands = [(0, 0), (10000, 1), (29000, 2), (8750, 3), (8750, 4), (5000, 5), (5000, 6), (2300, 7),
-                        (2300, 8), (1900, 9), (500, 10)]
+    num_vehicles = len(active_vehicles)
+    num_customers = len(customers)
+    print(num_vehicles, num_customers)
+
+    # Get the capacity of each vehicle
+    vehicle_capacity = []
+    for vehicle in active_vehicles:
+        vehicle_capacity.append(vehicle["capacity"])
+
+    # Get the customer demand base on the data of excel file
+    customer_demands = []
+    set_of_location = ""  # Set of location to call API Matrix MapBox
+    for customer in customers:
+        customer_demands.append((customer["total_tons"], customer["customer_id"]))
+        set_of_location += customer["longtitude"] + "," + customer["latitude"] + ";"
+
+    set_of_location = set_of_location[:-1]  # Remove the semi-colon
+
+    api_url = (
+        "https://api.mapbox.com/directions-matrix/v1/mapbox/driving/" + set_of_location
+    )
+    params = {
+        "access_token": "pk.eyJ1IjoidnV2aWV0aHVuZyIsImEiOiJjbHR2YXhjcmQxZmRkMm5vYWxkdjdjYWphIn0.2ZI2ANcvhekAUGxMkX-aew",
+        "annotations": "duration,distance",  # Get duration matrix and distance matrix
+    }
+    response = requests.get(api_url, params=params)
+    response = response.json()
+
+    global DISTANCE_MATRIX  # Meters
+    global TIME_MATRIX  # Minutes
+    global TIME_WINDOWS
+    for i in response["distances"]:
+        res = []
+        for x in i:
+            res.append(math.ceil(x))
+        DISTANCE_MATRIX.append(res)
+    # DISTANCE_MATRIX = response["distances"]
+
+    for i in response["durations"]:
+        res = []
+        for x in i:
+            res.append(math.ceil(x / 60))
+        TIME_MATRIX.append(res)
+    # TIME_MATRIX = response["durations"]
+
+    print("Distance matrix: ", DISTANCE_MATRIX)
+    print("Time Matrix: ", TIME_MATRIX)
+    print("-----------------------------")
+    for i in range(1, len(active_vehicles)):
+        TIME_WINDOWS.append((4, 16))
 
     # Create the OR-Tools routing model
     manager = pywrapcp.RoutingIndexManager(len(customer_demands), num_vehicles, 0)
@@ -257,15 +286,17 @@ def main():
     # Set up the OR-Tools routing model with necessary callbacks and constraints
 
     # Create an initial solution
-    initial_solution = SVRPSolution(num_vehicles, num_customers, vehicle_capacity, customer_demands)
+    initial_solution = SVRPSolution(
+        num_vehicles, num_customers, vehicle_capacity, customer_demands
+    )
     initial_solution.initialize_solution()
     routes = initial_solution.get_solution()
-    print(routes)
+    print("routes:", routes)
     # Run the Tabu Search algorithm
     best_solution = tabu_search(initial_solution)
 
     # Print the best solution found
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
