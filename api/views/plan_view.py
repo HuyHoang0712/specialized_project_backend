@@ -4,8 +4,7 @@ import pandas as pd
 import math
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import FileUploadParser
-from ..utils.distribute_order_service.customSVRP import main
-
+from api.utils.distribute_order_service.main import main
 
 today = datetime.today().strftime("%Y-%m-%d")
 
@@ -30,48 +29,25 @@ class PlanViewSet(viewsets.ModelViewSet):
         data = request.data["file"]
         reader = pd.read_excel(data, sheet_name=0, header=2)
         label_index = [0, 1, 4, 16]  # The column index in excel file need to get data
+        labels = ["ship_code", "contact_name", "order_type", "total_tons"]
         customers = []
-        unknow_customers = []
-
-        for i in range(0, reader.shape[0]):
-            customer = {
-                "ship_code": "",
-                "contact_name": "",
-                "customer_id": "",
-                "longtitude": "",
-                "latitude": "",
-                "order_type": "",
-                "total_tons": "",
-            }
-            count = 0
-            for i1 in label_index:
-                if count == 0:
-                    customer["ship_code"] = reader.iloc[i, i1]
-                elif count == 1:
-                    customer["contact_name"] = reader.iloc[i, i1]
-                elif count == 2:
-                    customer["order_type"] = reader.iloc[i, i1]
-                elif count == 3:
-                    customer["total_tons"] = math.ceil(reader.iloc[i, i1] * 1000)
-                count += 1
-            qr_contact_name = customer["contact_name"]
-            queryset = Customer.objects.filter(
-                name__unaccent__icontains=qr_contact_name.strip()
-            ).values()
-            for item in queryset:
-                if qr_contact_name.replace(" ", "") == item["name"].replace(" ", ""):
-                    customer["customer_id"] = item["id"]
-                    customer["longtitude"] = item["longitude"]
-                    customer["latitude"] = item["latitude"]
-                else:
-                    unknow_customers.append(qr_contact_name)
-            customers.append(customer)
-        if len(unknow_customers) != 0:
-            # If existing unknow customer, request user to input data
-            res = []
-            [res.append(x) for x in unknow_customers if x not in res]
-            return Response(res, status=status.HTTP_204_NO_CONTENT)
+        unknow_customers = set()
+        for i in range(reader.shape[0]):
+            customer = {label: reader.iloc[i, idx] if idx != 16 else math.ceil(reader.iloc[i, idx] * 1000) for
+                        label, idx in zip(labels, label_index)}
+            queryset = Customer.objects.filter(name__unaccent__icontains=customer["contact_name"].strip()).values()
+            if queryset:
+                item = queryset[0]
+                customer["customer_id"] = item["id"]
+                customer["longtitude"] = item["longitude"]
+                customer["latitude"] = item["latitude"]
+                customers.append(customer)
+            else:
+                unknow_customers.append(customer["contact_name"])
+        if unknow_customers:
+            return Response(list(unknow_customers), status=status.HTTP_204_NO_CONTENT)
         else:
             # Call VRP algorithm
-            main(self, customers)
+            main(customers)
+
         return Response(customers, status=status.HTTP_200_OK)
