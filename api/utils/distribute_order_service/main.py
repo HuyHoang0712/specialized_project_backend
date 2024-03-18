@@ -38,10 +38,8 @@ def create_distance_duration_matrix(set_of_location, active_vehicles):
     # print("Distance matrix: ", distance_matrix)
     # print("Time Matrix: ", time_matrix)
     # print("-----------------------------")
-    for i in range(1, len(active_vehicles)):
-        time_windows.append((4, 16))
 
-    return distance_matrix, time_matrix, time_windows
+    return distance_matrix, time_matrix
 
 
 def main(customers):
@@ -59,7 +57,8 @@ def main(customers):
         set_of_location += customer["longtitude"] + "," + customer["latitude"] + ";"
 
     set_of_location = set_of_location[:-1]  # Remove the semi-colon
-    distance_matrix, time_matrix, time_windows = create_distance_duration_matrix(set_of_location, active_vehicles)
+    distance_matrix, time_matrix = create_distance_duration_matrix(set_of_location, active_vehicles)
+    time_windows = [(4, 16)] * len(customer_demands)
 
     # Set up the OR-Tools routing model with necessary callbacks and constraints
 
