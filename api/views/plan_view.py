@@ -28,7 +28,7 @@ class PlanViewSet(viewsets.ModelViewSet):
     def file_upload(self, request):
         data = request.data["file"]
         reader = pd.read_excel(data, sheet_name=0, header=2)
-        label_index = [0, 1, 4, 16]  # The column index in excel file need to get data
+        label_index = [0, 1, 4, 16]  # The column index in Excel file need to get data
         labels = ["ship_code", "contact_name", "order_type", "total_tons"]
         customers = []
         unknow_customers = set()
@@ -39,11 +39,11 @@ class PlanViewSet(viewsets.ModelViewSet):
             if queryset:
                 item = queryset[0]
                 customer["customer_id"] = item["id"]
-                customer["longtitude"] = item["longitude"]
+                customer["longitude"] = item["longitude"]
                 customer["latitude"] = item["latitude"]
                 customers.append(customer)
             else:
-                unknow_customers.append(customer["contact_name"])
+                unknow_customers.add(customer["contact_name"])
         if unknow_customers:
             return Response(list(unknow_customers), status=status.HTTP_204_NO_CONTENT)
         else:
