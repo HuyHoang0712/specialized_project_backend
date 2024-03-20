@@ -74,7 +74,7 @@ def main(customers):
 
     set_of_location = set_of_location[:-1]  # Remove the semi-colon
     distance_matrix, time_matrix = create_distance_duration_matrix(set_of_location)
-    print(distance_matrix, time_matrix)
+    # print(distance_matrix, time_matrix)
     time_windows = [(4, 16)] * len(customers)
 
     # Set up the OR-Tools routing model with necessary callbacks and constraints

@@ -74,11 +74,17 @@ class SVRPSolution:
                 enumerate(vehicle_route), self.routes[vehicle_idx])
         # print(self.vehicle_use)
         # print(self.split_deliveries)
-        print("customer:", [(customer["total_tons"], customer["contact_name"]) for customer in self.customers])
-        print("vehicles:", [(vehicle["license_plate"], vehicle["capacity"]) for vehicle in self.vehicles])
+        # print("customer:", [(customer["total_tons"], customer["contact_name"]) for customer in self.customers])
+        # print("vehicles:", [(vehicle["license_plate"], vehicle["capacity"]) for vehicle in self.vehicles])
         return self.routes
 
     def tabu_search(self):
+        print("num_vehicles:", self.num_vehicles)
+        print("num_customers:", self.num_customers)
+        print("distance_matrix:", self.distance_matrix)
+        print("time_matrix:", self.time_matrix)
+        print("customer:", [(customer["total_tons"], customer["contact_name"]) for customer in self.customers])
+        print("vehicles:", [(vehicle["license_plate"], vehicle["capacity"]) for vehicle in self.vehicles])
         manager = pywrapcp.RoutingIndexManager(
             self.num_customers, self.num_vehicles, 0
         )
@@ -135,6 +141,7 @@ class SVRPSolution:
             index = routing.Start(vehicle_id)
             time_dimension.CumulVar(index).SetRange(
                 self.vehicle_use[vehicle_id]["in_use"] + 240,
+                # self.time_windows[depot_idx][0] * 60,
                 self.time_windows[depot_idx][1] * 60,
             )
 
@@ -159,15 +166,15 @@ class SVRPSolution:
             )
             routing.AddVariableMinimizedByFinalizer(time_dimension.CumulVar(routing.End(i)))
 
-        # penalty = 1
-        # for node in range(1, len(self.distance_matrix)):
-        #     index = manager.NodeToIndex(node)
-        #     if index == 0:
-        #         continue
-        #     if self.customers[node]["total_tons"] == 0:
-        #         routing.AddDisjunction([manager.NodeToIndex(node)], 1000000)
-        #     else:
-        #         routing.AddDisjunction([manager.NodeToIndex(node)], penalty)
+        penalty = 100000
+        for node in range(1, len(self.distance_matrix)):
+            index = manager.NodeToIndex(node)
+            if index == 0:
+                continue
+            if self.customers[node]["total_tons"] == 0:
+                routing.AddDisjunction([manager.NodeToIndex(node)], 0)
+            else:
+                routing.AddDisjunction([manager.NodeToIndex(node)], 100000)
         # Setting first solution heuristic.
 
         search_parameters = pywrapcp.DefaultRoutingSearchParameters()
