@@ -85,7 +85,7 @@ def main(customers):
     )
     solution.initialize_solution()
     routes = solution.get_solution()
-    print("routes:", routes)
+
     # Run the Tabu Search algorithm
     solution.tabu_search()
     # Print the best solution found

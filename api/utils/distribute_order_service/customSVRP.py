@@ -45,10 +45,10 @@ class SVRPSolution:
             if customer["total_tons"] > max_vehicles:
                 self.split_order(customer)
 
-    def split_order(self, customer):
+    def split_order(self, customer, vehicle_idx=0):
         cur_demand = customer["total_tons"]
         cur_order_idx = self.customers.index(customer)
-        for vehicle_idx in range(self.num_vehicles):
+        for vehicle_idx in range(vehicle_idx, self.num_vehicles):
             vehicle_cap = self.vehicles[vehicle_idx]["capacity"]
             if cur_demand >= vehicle_cap:
                 cur_demand -= vehicle_cap
@@ -71,20 +71,14 @@ class SVRPSolution:
         for vehicle_idx, vehicle_route in enumerate(self.split_deliveries):
             self.routes[vehicle_idx] = functools.reduce(
                 lambda x, y: x + [self.customers[y[0]]["customer_id"], 0] if y[1]["split_demand"] > 0 else x,
-                enumerate(vehicle_route), self.routes[vehicle_idx])
-        # print(self.vehicle_use)
-        # print(self.split_deliveries)
-        # print("customer:", [(customer["total_tons"], customer["contact_name"]) for customer in self.customers])
-        # print("vehicles:", [(vehicle["license_plate"], vehicle["capacity"]) for vehicle in self.vehicles])
+                enumerate(vehicle_route), [0])
         return self.routes
 
     def tabu_search(self):
-        print("num_vehicles:", self.num_vehicles)
-        print("num_customers:", self.num_customers)
-        print("distance_matrix:", self.distance_matrix)
-        print("time_matrix:", self.time_matrix)
-        print("customer:", [(customer["total_tons"], customer["contact_name"]) for customer in self.customers])
-        print("vehicles:", [(vehicle["license_plate"], vehicle["capacity"]) for vehicle in self.vehicles])
+        print("routes:", self.routes, end="\n\n")
+        print("customer:", [(customer["total_tons"], customer["contact_name"]) for customer in self.customers],
+              end="\n\n")
+        print("vehicles:", [(vehicle["license_plate"], vehicle["capacity"]) for vehicle in self.vehicles], end="\n\n")
         manager = pywrapcp.RoutingIndexManager(
             self.num_customers, self.num_vehicles, 0
         )
@@ -184,13 +178,30 @@ class SVRPSolution:
         search_parameters.local_search_metaheuristic = (
             routing_enums_pb2.LocalSearchMetaheuristic.TABU_SEARCH
         )
-        search_parameters.solution_limit = 150
-        search_parameters.log_search = True
+        search_parameters.solution_limit = 200
+        # search_parameters.log_search = True
         search_parameters.time_limit.FromSeconds(100)
         # Solve the problem.
         solution = routing.SolveWithParameters(search_parameters)
         if solution:
-            self.print_solution(manager, routing, solution)
+            dropped_nodes = []
+            for node in range(routing.Size()):
+                if routing.IsStart(node) or routing.IsEnd(node):
+                    continue
+                if solution.Value(routing.NextVar(node)) == node:
+                    dropped_nodes.append(self.customers[manager.IndexToNode(node)])
+            print("dropped_nodes:", dropped_nodes, end="\n\n")
+            if len(dropped_nodes) > 0:
+                def find_first_match_index(lst, condition):
+                    return next((i for i, item in enumerate(lst) if condition(item["capacity"])), None)
+
+                for customer in dropped_nodes:
+                    vehicle_idx = find_first_match_index(self.vehicles, lambda x: x < customer["total_tons"])
+                    self.split_order(customer, vehicle_idx)
+                self.get_solution()
+                self.tabu_search()
+            else:
+                self.print_solution(manager, routing, solution)
         else:
             print("No solution found !")
 
