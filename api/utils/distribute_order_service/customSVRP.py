@@ -10,12 +10,12 @@ AVAILABLE_TIME = 480
 
 class SVRPSolution:
     def __init__(
-            self,
-            vehicles: list[any],
-            customers: list[any],
-            distance_matrix: list[list[int]],
-            time_matrix: list[list[int]],
-            time_windows: list[(int, int)],
+        self,
+        vehicles: list[any],
+        customers: list[any],
+        distance_matrix: list[list[int]],
+        time_matrix: list[list[int]],
+        time_windows: list[(int, int)],
     ):
         self.num_vehicles = len(vehicles)
         self.num_customers = len(customers)
@@ -27,11 +27,17 @@ class SVRPSolution:
         self.time_matrix = time_matrix
         self.time_windows = time_windows
 
-        self.split_deliveries = [[{"id": customer["customer_id"], "split_demand": 0} for customer in self.customers[1:]]
-                                 for
-                                 _ in range(self.num_vehicles)]
+        self.split_deliveries = [
+            [
+                {"id": customer["customer_id"], "split_demand": 0}
+                for customer in self.customers[1:]
+            ]
+            for _ in range(self.num_vehicles)
+        ]
         self.routes = [[0] for _ in range(self.num_vehicles)]
-        self.vehicle_use = [{"id": vehicle["license_plate"], "in_use": 0} for vehicle in self.vehicles]
+        self.vehicle_use = [
+            {"id": vehicle["license_plate"], "in_use": 0} for vehicle in self.vehicles
+        ]
         self.cost = 0
 
     def initialize_solution(self):
@@ -52,12 +58,16 @@ class SVRPSolution:
             vehicle_cap = self.vehicles[vehicle_idx]["capacity"]
             if cur_demand >= vehicle_cap:
                 cur_demand -= vehicle_cap
-                self.split_deliveries[vehicle_idx][cur_order_idx]["split_demand"] = vehicle_cap
+                self.split_deliveries[vehicle_idx][cur_order_idx][
+                    "split_demand"
+                ] = vehicle_cap
                 self.vehicle_use[vehicle_idx]["in_use"] += math.floor(
                     self.time_matrix[0][cur_order_idx] * 2.2
                 )
             elif cur_demand / vehicle_cap >= 0.9:
-                self.split_deliveries[vehicle_idx][cur_order_idx]["split_demand"] = cur_demand
+                self.split_deliveries[vehicle_idx][cur_order_idx][
+                    "split_demand"
+                ] = cur_demand
                 self.customers[cur_order_idx]["total_tons"] = 0
                 self.vehicle_use[vehicle_idx]["in_use"] += math.floor(
                     self.time_matrix[0][cur_order_idx] * 2.2
@@ -70,18 +80,35 @@ class SVRPSolution:
     def get_solution(self):
         for vehicle_idx, vehicle_route in enumerate(self.split_deliveries):
             self.routes[vehicle_idx] = functools.reduce(
-                lambda x, y: x + [self.customers[y[0]]["customer_id"], 0] if y[1]["split_demand"] > 0 else x,
-                enumerate(vehicle_route), [0])
+                lambda x, y: (
+                    x + [self.customers[y[0]]["customer_id"], 0]
+                    if y[1]["split_demand"] > 0
+                    else x
+                ),
+                enumerate(vehicle_route),
+                [0],
+            )
         return self.routes
 
     def tabu_search(self):
         print("routes:", self.routes, end="\n\n")
-        print("customer:", [(customer["total_tons"], customer["contact_name"]) for customer in self.customers],
-              end="\n\n")
-        print("vehicles:", [(vehicle["license_plate"], vehicle["capacity"]) for vehicle in self.vehicles], end="\n\n")
-        manager = pywrapcp.RoutingIndexManager(
-            self.num_customers, self.num_vehicles, 0
+        print(
+            "customer:",
+            [
+                (customer["customer_id"], idx)
+                for idx, customer in enumerate(self.customers)
+            ],
+            end="\n\n",
         )
+        print(
+            "vehicles:",
+            [
+                (vehicle["license_plate"], vehicle["capacity"])
+                for vehicle in self.vehicles
+            ],
+            end="\n\n",
+        )
+        manager = pywrapcp.RoutingIndexManager(self.num_customers, self.num_vehicles, 0)
 
         # Create Routing Model.
         routing = pywrapcp.RoutingModel(manager)
@@ -149,7 +176,9 @@ class SVRPSolution:
         routing.AddDimensionWithVehicleCapacity(
             demand_callback_index,
             0,  # null capacity slack
-            [vehicle["capacity"] for vehicle in self.vehicles],  # vehicle maximum capacities
+            [
+                vehicle["capacity"] for vehicle in self.vehicles
+            ],  # vehicle maximum capacities
             True,  # start cumul to zero
             "Capacity",
         )
@@ -158,7 +187,9 @@ class SVRPSolution:
             routing.AddVariableMinimizedByFinalizer(
                 time_dimension.CumulVar(routing.Start(i))
             )
-            routing.AddVariableMinimizedByFinalizer(time_dimension.CumulVar(routing.End(i)))
+            routing.AddVariableMinimizedByFinalizer(
+                time_dimension.CumulVar(routing.End(i))
+            )
 
         penalty = 100000
         for node in range(1, len(self.distance_matrix)):
@@ -192,11 +223,21 @@ class SVRPSolution:
                     dropped_nodes.append(self.customers[manager.IndexToNode(node)])
             print("dropped_nodes:", dropped_nodes, end="\n\n")
             if len(dropped_nodes) > 0:
+
                 def find_first_match_index(lst, condition):
-                    return next((i for i, item in enumerate(lst) if condition(item["capacity"])), None)
+                    return next(
+                        (
+                            i
+                            for i, item in enumerate(lst)
+                            if condition(item["capacity"])
+                        ),
+                        None,
+                    )
 
                 for customer in dropped_nodes:
-                    vehicle_idx = find_first_match_index(self.vehicles, lambda x: x < customer["total_tons"])
+                    vehicle_idx = find_first_match_index(
+                        self.vehicles, lambda x: x < customer["total_tons"]
+                    )
                     self.split_order(customer, vehicle_idx)
                 self.get_solution()
                 self.tabu_search()
@@ -224,9 +265,7 @@ class SVRPSolution:
         total_load = 0
         for vehicle_id in range(self.num_vehicles):
             index = routing.Start(vehicle_id)
-            plan_output = (
-                f"Route for vehicle {vehicle_id} - {self.vehicles[vehicle_id]['license_plate']} - {self.vehicles[vehicle_id]['capacity']}:\n"
-            )
+            plan_output = f"Route for vehicle {vehicle_id} - {self.vehicles[vehicle_id]['license_plate']} - {self.vehicles[vehicle_id]['capacity']}:\n"
             route_distance = 0
             route_load = 0
             while not routing.IsEnd(index):

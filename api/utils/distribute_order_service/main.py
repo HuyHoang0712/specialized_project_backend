@@ -13,9 +13,7 @@ DEPOT = "LF_VSIP_INV_F01"
 def create_distance_duration_matrix(set_of_location):
     distance_matrix = []
     time_matrix = []
-    api_url = (
-            MAP_BOX_API + set_of_location
-    )
+    api_url = MAP_BOX_API + set_of_location
     params = {
         "access_token": MAP_BOX_ACCESS_TOKEN,
         "annotations": "duration,distance",  # Get duration matrix and distance matrix
@@ -37,9 +35,9 @@ def create_distance_duration_matrix(set_of_location):
         time_matrix.append(res)
     # TIME_MATRIX = response["durations"]
 
-    # print("Distance matrix: ", distance_matrix)
-    # print("Time Matrix: ", time_matrix)
-    # print("-----------------------------")
+    print("Distance matrix: ", distance_matrix)
+    print("Time Matrix: ", time_matrix)
+    print("-----------------------------")
 
     return distance_matrix, time_matrix
 
@@ -50,15 +48,17 @@ def main(customers):
     active_vehicles = [vehicle for vehicle in active_vehicles]
     active_vehicles.sort(reverse=True, key=lambda a: a["capacity"])
     depot = Customer.objects.filter(name=DEPOT).values()
-    depot = [{
-        "contact_name": depot[0]["name"],
-        "ship_code": 0,
-        "order_type": "DAILY",
-        "total_tons": 0,
-        "customer_id": depot[0]["id"],
-        "latitude": depot[0]["latitude"],
-        "longitude": depot[0]["longitude"],
-    }]
+    depot = [
+        {
+            "contact_name": depot[0]["name"],
+            "ship_code": 0,
+            "order_type": "DAILY",
+            "total_tons": 0,
+            "customer_id": depot[0]["id"],
+            "latitude": depot[0]["latitude"],
+            "longitude": depot[0]["longitude"],
+        }
+    ]
     # Get the capacity of each vehicle
     # vehicle_capacity = [vehicle["capacity"] for vehicle in active_vehicles]
 
@@ -67,7 +67,9 @@ def main(customers):
     # Set of location to call API Matrix MapBox
     customers.sort(reverse=True, key=lambda a: a["total_tons"])
     customers = depot + customers
-    set_of_location = functools.reduce(lambda x, y: x + y["longitude"] + "," + y["latitude"] + ";", customers, "")
+    set_of_location = functools.reduce(
+        lambda x, y: x + y["longitude"] + "," + y["latitude"] + ";", customers, ""
+    )
     # for customer in customers:
     #     customer_demands.append((customer["total_tons"], customer["customer_id"]))
     #     set_of_location += customer["longtitude"] + "," + customer["latitude"] + ";"
@@ -89,6 +91,7 @@ def main(customers):
     # Run the Tabu Search algorithm
     solution.tabu_search()
     # Print the best solution found
+
 
 # if __name__ == "__main__":
 #     main()
