@@ -22,7 +22,6 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         issues = Issue.objects.filter(order_id=instance.id).count()
-
         return {
             "id": instance.id,
             "ship_code": instance.ship_code,
@@ -31,20 +30,13 @@ class OrderSerializer(serializers.ModelSerializer):
             "payload": instance.payload,
             "pickup_point": instance.pickup_point.name,
             "delivery_point": instance.delivery_point.name,
-            "vehicle": instance.vehicle.license_plate,
+            "vehicle": instance.vehicle.license_plate if instance.vehicle else None,
             "status": instance.status,
             "issues_count": issues
         }
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
-    pickup_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
-    delivery_point = serializers.SlugRelatedField(read_only=True, slug_field="name")
-    vehicle = VehicleDetailSerializer(
-        read_only=True,
-        many=False,
-    )
-
     class Meta:
         model = Order
         fields = [
@@ -59,3 +51,20 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "status",
             "plan",
         ]
+
+    def to_representation(self, instance):
+        vehicle = VehicleDetailSerializer(instance.vehicle, many=False, read_only=True)
+        return {
+            "id": instance.id,
+            "ship_code": instance.ship_code,
+            "date": instance.date,
+            "time_in": instance.time_in,
+            "payload": instance.payload,
+            "pickup_point": instance.pickup_point if type(
+                instance.pickup_point) == "String" else instance.pickup_point.name,
+            "delivery_point": instance.delivery_point if type(
+                instance.delivery_point) == "String" else instance.delivery_point.name,
+            "vehicle": vehicle.data,
+            "status": instance.status,
+
+        }

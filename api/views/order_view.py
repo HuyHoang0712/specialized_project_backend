@@ -29,11 +29,11 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="get_order_by_id")
     def get_order_by_id(self, request, pk=None):
         qr_id = request.query_params["id"]
-        queryset = Order.objects.filter(id=qr_id)
-        serializer = OrderDetailSerializer(queryset, many=True)
+        queryset = Order.objects.get(id=qr_id)
+        serializer = OrderDetailSerializer(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["patch"])
+    @action(detail=False, methods=["put"])
     def update_order(self, request):
         qr_id = request.query_params["id"]
         order = Order.objects.get(id=qr_id)
@@ -41,8 +41,9 @@ class OrderViewSet(viewsets.ModelViewSet):
             serializer = OrderSerializer(order, data=request.data, partial=True)
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_200_OK)
+                res_serializer = OrderDetailSerializer(order)
+
+                return Response(res_serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response("Order is not founded!", status=status.HTTP_404_NOT_FOUND)
-
