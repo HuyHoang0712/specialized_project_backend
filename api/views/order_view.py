@@ -6,9 +6,8 @@ today = datetime.today().strftime("%Y-%m-%d")
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-    serializer_class = ()
+    serializer_class = OrderSerializer
     # authentication_classes = (JWTAuthentication,)
-
     authentication_classes = ()
     permission_classes = ()
 
@@ -45,4 +44,3 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response("Order is not founded!", status=status.HTTP_404_NOT_FOUND)
-
