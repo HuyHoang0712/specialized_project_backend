@@ -6,9 +6,8 @@ today = datetime.today().strftime("%Y-%m-%d")
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
-    serializer_class = ()
+    serializer_class = OrderSerializer
     # authentication_classes = (JWTAuthentication,)
-
     authentication_classes = ()
     permission_classes = ()
 
