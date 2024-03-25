@@ -1,5 +1,5 @@
 from .backend import *
-from ..utils.get_location_service.get_location import *
+from api.utils.get_location_service.get_location import *
 
 
 class CustomerViewSet(viewsets.ModelViewSet):
