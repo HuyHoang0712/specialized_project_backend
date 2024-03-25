@@ -10,12 +10,12 @@ AVAILABLE_TIME = 480
 
 class SVRPSolution:
     def __init__(
-        self,
-        vehicles: list[any],
-        customers: list[any],
-        distance_matrix: list[list[int]],
-        time_matrix: list[list[int]],
-        time_windows: list[(int, int)],
+            self,
+            vehicles: list[any],
+            customers: list[any],
+            distance_matrix: list[list[int]],
+            time_matrix: list[list[int]],
+            time_windows: list[(int, int)],
     ):
         self.num_vehicles = len(vehicles)
         self.num_customers = len(customers)
@@ -30,7 +30,7 @@ class SVRPSolution:
         self.split_deliveries = [
             [
                 {"id": customer["customer_id"], "split_demand": 0}
-                for customer in self.customers[1:]
+                for customer in self.customers
             ]
             for _ in range(self.num_vehicles)
         ]
@@ -54,6 +54,7 @@ class SVRPSolution:
     def split_order(self, customer, vehicle_idx=0):
         cur_demand = customer["total_tons"]
         cur_order_idx = self.customers.index(customer)
+        print(cur_order_idx)
         for vehicle_idx in range(vehicle_idx, self.num_vehicles):
             vehicle_cap = self.vehicles[vehicle_idx]["capacity"]
             if cur_demand >= vehicle_cap:
