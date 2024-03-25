@@ -5,7 +5,7 @@ MAP_BOX_API = "https://api.mapbox.com/directions-matrix/v1/mapbox/driving/"
 MAP_BOX_ACCESS_TOKEN = "pk.eyJ1IjoidnV2aWV0aHVuZyIsImEiOiJjbHR2YXhjcmQxZmRkMm5vYWxkdjdjYWphIn0.2ZI2ANcvhekAUGxMkX-aew"
 
 
-def create_distance_duration_matrix(set_of_location, active_vehicles):
+def create_distance_duration_matrix(set_of_location):
     distance_matrix = []
     time_matrix = []
 

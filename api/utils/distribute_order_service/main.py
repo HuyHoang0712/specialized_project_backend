@@ -1,9 +1,9 @@
 from .customSVRP import SVRPSolution
 from api.models import *
 from api.utils.mapbox_service.mapbox import *
+import functools
 
-
-
+DEPOT = "LF_VSIP_INV_F01"
 
 
 def main(customers):
@@ -23,8 +23,6 @@ def main(customers):
             "longitude": depot[0]["longitude"],
         }
     ]
-    # Get the capacity of each vehicle
-    # vehicle_capacity = [vehicle["capacity"] for vehicle in active_vehicles]
 
     # Get the customer demand base on the data of Excel file
 
@@ -34,9 +32,6 @@ def main(customers):
     set_of_location = functools.reduce(
         lambda x, y: x + y["longitude"] + "," + y["latitude"] + ";", customers, ""
     )
-    # for customer in customers:
-    #     customer_demands.append((customer["total_tons"], customer["customer_id"]))
-    #     set_of_location += customer["longtitude"] + "," + customer["latitude"] + ";"
 
     set_of_location = set_of_location[:-1]  # Remove the semi-colon
     distance_matrix, time_matrix = create_distance_duration_matrix(set_of_location)
@@ -44,18 +39,17 @@ def main(customers):
     time_windows = [(4, 16)] * len(customers)
 
     # Set up the OR-Tools routing model with necessary callbacks and constraints
-
     # Create an initial solution
     solution = SVRPSolution(
         active_vehicles, customers, distance_matrix, time_matrix, time_windows
     )
     solution.initialize_solution()
+
     routes = solution.get_solution()
 
     # Run the Tabu Search algorithm
     solution.tabu_search()
     # Print the best solution found
-
 
 # if __name__ == "__main__":
 #     main()
