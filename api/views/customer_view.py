@@ -24,7 +24,7 @@ class CustomerViewSet(viewsets.ModelViewSet):
             return Response("Please input address", status=status.HTTP_400_BAD_REQUEST)
 
         print(data)
-        serializer = CreateCustomerSerializer(data=data)
+        serializer = CustomerSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

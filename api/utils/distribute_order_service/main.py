@@ -2,9 +2,12 @@ from .customSVRP import SVRPSolution
 from api.models import *
 from api.utils.mapbox_service.mapbox import *
 import functools
+<<<<<<< Updated upstream
 
 DEPOT = "LF_VSIP_INV_F01"
 
+=======
+>>>>>>> Stashed changes
 
 def main(customers):
     # Get the active vehicles
