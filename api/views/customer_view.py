@@ -30,3 +30,10 @@ class CustomerViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=["get"])
+    def get_customer_by_id(self, request):
+        qr_id = request.query_params["id"]
+        queryset = Customer.objects.get(id=qr_id)
+        serializer = CustomerSerializer(queryset)
+        return Response(serializer.data, status=status.HTTP_200_OK)
