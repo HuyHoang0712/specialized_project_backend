@@ -32,7 +32,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "delivery_point": instance.delivery_point.name,
             "vehicle": instance.vehicle.license_plate if instance.vehicle else None,
             "status": instance.status,
-            "issues_count": issues
+            "issues_count": issues,
         }
 
 
@@ -60,11 +60,16 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "date": instance.date,
             "time_in": instance.time_in,
             "payload": instance.payload,
-            "pickup_point": instance.pickup_point if type(
-                instance.pickup_point) == "String" else instance.pickup_point.name,
-            "delivery_point": instance.delivery_point if type(
-                instance.delivery_point) == "String" else instance.delivery_point.name,
+            "pickup_point": (
+                instance.pickup_point
+                if type(instance.pickup_point) == "String"
+                else instance.pickup_point.name
+            ),
+            "delivery_point": (
+                instance.delivery_point
+                if type(instance.delivery_point) == "String"
+                else instance.delivery_point.name
+            ),
             "vehicle": vehicle.data,
             "status": instance.status,
-
         }

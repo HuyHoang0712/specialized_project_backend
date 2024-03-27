@@ -2,20 +2,24 @@ from ortools.constraint_solver import routing_enums_pb2
 from ortools.constraint_solver import pywrapcp
 import functools
 import math
+from .createOrderObj import *
+from datetime import datetime
+import random
 
 END_TIME = 960
 START_TIME = 240
 AVAILABLE_TIME = 480
+today = datetime.today().strftime("%Y-%m-%d")
 
 
 class SVRPSolution:
     def __init__(
-            self,
-            vehicles: list[any],
-            customers: list[any],
-            distance_matrix: list[list[int]],
-            time_matrix: list[list[int]],
-            time_windows: list[(int, int)],
+        self,
+        vehicles: list[any],
+        customers: list[any],
+        distance_matrix: list[list[int]],
+        time_matrix: list[list[int]],
+        time_windows: list[(int, int)],
     ):
         self.num_vehicles = len(vehicles)
         self.num_customers = len(customers)
@@ -29,7 +33,12 @@ class SVRPSolution:
 
         self.split_deliveries = [
             [
-                {"id": customer["customer_id"], "split_demand": 0}
+                {
+                    "id": customer["customer_id"],
+                    "split_demand": 0,
+                    "time_in": 0,
+                    "ship_code": "",
+                }
                 for customer in self.customers
             ]
             for _ in range(self.num_vehicles)
@@ -39,6 +48,7 @@ class SVRPSolution:
             {"id": vehicle["license_plate"], "in_use": 0} for vehicle in self.vehicles
         ]
         self.cost = 0
+        self.transportation_plan = ""
 
     def initialize_solution(self):
         idx_max_vehicles = 0
@@ -54,7 +64,6 @@ class SVRPSolution:
     def split_order(self, customer, vehicle_idx=0):
         cur_demand = customer["total_tons"]
         cur_order_idx = self.customers.index(customer)
-        print(cur_order_idx)
         for vehicle_idx in range(vehicle_idx, self.num_vehicles):
             vehicle_cap = self.vehicles[vehicle_idx]["capacity"]
             if cur_demand >= vehicle_cap:
@@ -65,6 +74,12 @@ class SVRPSolution:
                 self.vehicle_use[vehicle_idx]["in_use"] += math.floor(
                     self.time_matrix[0][cur_order_idx] * 2.2
                 )
+                self.split_deliveries[vehicle_idx][cur_order_idx]["time_in"] = (
+                    self.vehicle_use[vehicle_idx]["in_use"]
+                )
+                self.split_deliveries[vehicle_idx][cur_order_idx]["ship_code"] = (
+                    self.customers[cur_order_idx]["ship_code"]
+                )
             elif cur_demand / vehicle_cap >= 0.9:
                 self.split_deliveries[vehicle_idx][cur_order_idx][
                     "split_demand"
@@ -72,6 +87,12 @@ class SVRPSolution:
                 self.customers[cur_order_idx]["total_tons"] = 0
                 self.vehicle_use[vehicle_idx]["in_use"] += math.floor(
                     self.time_matrix[0][cur_order_idx] * 2.2
+                )
+                self.split_deliveries[vehicle_idx][cur_order_idx]["time_in"] = (
+                    self.vehicle_use[vehicle_idx]["in_use"]
+                )
+                self.split_deliveries[vehicle_idx][cur_order_idx]["ship_code"] = (
+                    self.customers[cur_order_idx]["ship_code"]
                 )
                 return
             else:
@@ -243,6 +264,13 @@ class SVRPSolution:
                 self.get_solution()
                 self.tabu_search()
             else:
+                order_class = CreateOrder(
+                    vehicles=self.vehicles,
+                    customers=self.customers,
+                )
+                self.transportation_plan = order_class.create_order_obj(
+                    split_deliveries=self.split_deliveries
+                )
                 self.print_solution(manager, routing, solution)
         else:
             print("No solution found !")
@@ -264,6 +292,7 @@ class SVRPSolution:
         total_time = 0
         total_distance = 0
         total_load = 0
+        order_need_create = []
         for vehicle_id in range(self.num_vehicles):
             index = routing.Start(vehicle_id)
             plan_output = f"Route for vehicle {vehicle_id} - {self.vehicles[vehicle_id]['license_plate']} - {self.vehicles[vehicle_id]['capacity']}:\n"
@@ -279,6 +308,45 @@ class SVRPSolution:
                     f" Time({solution.Min(time_var)},{solution.Max(time_var)})"
                     " -> "
                 )
+                # Start create Tabu order
+                if route_load > 0:
+                    order_obj = {
+                        "id": "TB"
+                        + str(vehicle_id)
+                        + str(self.customers[node_index]["ship_code"]),
+                        "ship_code": self.customers[node_index]["ship_code"],
+                        "date": today,
+                        "time_in": datetime.strftime(
+                            datetime.utcfromtimestamp(solution.Min(time_var)),
+                            "%M:%S",
+                        ),
+                        "payload": self.customers[node_index]["total_tons"],
+                        "pickup_point": Customer.objects.get(id=25),
+                        "delivery_point": Customer.objects.get(
+                            id=self.customers[node_index]["customer_id"]
+                        ),
+                        "vehicle": Vehicle.objects.get(
+                            license_plate=self.vehicles[vehicle_id]["license_plate"]
+                        ),
+                        "status": 1,
+                        "plan": TransportationPlan.objects.get(
+                            id=self.transportation_plan
+                        ),
+                    }
+                    create_order = Order(
+                        id=order_obj["id"],
+                        ship_code=order_obj["ship_code"],
+                        date=order_obj["date"],
+                        time_in=order_obj["time_in"],
+                        payload=order_obj["payload"],
+                        pickup_point=order_obj["pickup_point"],
+                        delivery_point=order_obj["delivery_point"],
+                        vehicle=order_obj["vehicle"],
+                        status=order_obj["status"],
+                        plan=order_obj["plan"],
+                    )
+                    order_need_create.append(create_order)
+                # End create Tabu order
                 previous_index = index
                 index = solution.Value(routing.NextVar(index))
                 route_distance += routing.GetArcCostForVehicle(
@@ -295,3 +363,5 @@ class SVRPSolution:
             print(plan_output)
             total_time += solution.Min(time_var)
         print(f"Total time of all routes: {total_time}min")
+        if len(order_need_create) > 0:
+            objs = Order.objects.bulk_create(order_need_create)
