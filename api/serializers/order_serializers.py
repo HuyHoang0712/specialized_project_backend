@@ -73,3 +73,20 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             "vehicle": vehicle.data,
             "status": instance.status,
         }
+
+
+class CreateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = (
+            # "id",
+            "ship_code",
+            "date",
+            "time_in",
+            "payload",
+            "pickup_point",
+            "delivery_point",
+            "vehicle",
+            "status",
+            "plan",
+        )

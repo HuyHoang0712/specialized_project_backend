@@ -311,41 +311,20 @@ class SVRPSolution:
                 # Start create Tabu order
                 if route_load > 0:
                     order_obj = {
-                        "id": "TB"
-                        + str(vehicle_id)
-                        + str(self.customers[node_index]["ship_code"]),
-                        "ship_code": self.customers[node_index]["ship_code"],
+                        "ship_code": str(self.customers[node_index]["ship_code"]),
                         "date": today,
                         "time_in": datetime.strftime(
                             datetime.utcfromtimestamp(solution.Min(time_var)),
                             "%M:%S",
                         ),
                         "payload": self.customers[node_index]["total_tons"],
-                        "pickup_point": Customer.objects.get(id=25),
-                        "delivery_point": Customer.objects.get(
-                            id=self.customers[node_index]["customer_id"]
-                        ),
-                        "vehicle": Vehicle.objects.get(
-                            license_plate=self.vehicles[vehicle_id]["license_plate"]
-                        ),
+                        "pickup_point": 25,
+                        "delivery_point": self.customers[node_index]["customer_id"],
+                        "vehicle": self.vehicles[vehicle_id]["license_plate"],
                         "status": 1,
-                        "plan": TransportationPlan.objects.get(
-                            id=self.transportation_plan
-                        ),
+                        "plan": self.transportation_plan,
                     }
-                    create_order = Order(
-                        id=order_obj["id"],
-                        ship_code=order_obj["ship_code"],
-                        date=order_obj["date"],
-                        time_in=order_obj["time_in"],
-                        payload=order_obj["payload"],
-                        pickup_point=order_obj["pickup_point"],
-                        delivery_point=order_obj["delivery_point"],
-                        vehicle=order_obj["vehicle"],
-                        status=order_obj["status"],
-                        plan=order_obj["plan"],
-                    )
-                    order_need_create.append(create_order)
+                    order_need_create.append(order_obj)
                 # End create Tabu order
                 previous_index = index
                 index = solution.Value(routing.NextVar(index))
@@ -363,5 +342,6 @@ class SVRPSolution:
             print(plan_output)
             total_time += solution.Min(time_var)
         print(f"Total time of all routes: {total_time}min")
-        if len(order_need_create) > 0:
-            objs = Order.objects.bulk_create(order_need_create)
+        serializer = CreateOrderSerializer(data=order_need_create, many=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()

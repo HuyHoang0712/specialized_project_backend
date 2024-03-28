@@ -54,7 +54,9 @@ class Vehicle(models.Model):
         default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
     )
     brand = models.CharField(default=None, max_length=32, blank=True)
-    driver = models.OneToOneField(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    driver = models.OneToOneField(
+        Employee, on_delete=models.SET_NULL, null=True, blank=True
+    )
 
 
 class Customer(models.Model):
@@ -66,7 +68,7 @@ class Customer(models.Model):
 
 
 class Order(models.Model):
-    id = models.CharField(max_length=32, primary_key=True)
+    id = models.AutoField(primary_key=True)
     ship_code = models.CharField(max_length=32)
     date = models.DateField(default=timezone.now)
     time_in = models.TimeField()
@@ -89,7 +91,13 @@ class Issue(models.Model):
     date_time = models.DateTimeField()
     status = models.IntegerField(default=STATUS_ORDER[0][0], choices=STATUS_ORDER)
     label = models.CharField(max_length=254)
-    creator = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    creator = models.ForeignKey(
+        Employee, on_delete=models.SET_NULL, null=True, blank=True
+    )
     order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True, blank=True)
-    warehouse = models.ForeignKey(Warehouse, on_delete=models.SET_NULL, null=True, blank=True)
+    vehicle = models.ForeignKey(
+        Vehicle, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    warehouse = models.ForeignKey(
+        Warehouse, on_delete=models.SET_NULL, null=True, blank=True
+    )

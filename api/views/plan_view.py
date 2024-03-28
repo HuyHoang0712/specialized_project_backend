@@ -33,9 +33,17 @@ class PlanViewSet(viewsets.ModelViewSet):
         customers = []
         unknow_customers = set()
         for i in range(reader.shape[0]):
-            customer = {label: reader.iloc[i, idx] if idx != 16 else math.ceil(reader.iloc[i, idx] * 1000) for
-                        label, idx in zip(labels, label_index)}
-            queryset = Customer.objects.filter(name__unaccent__icontains=customer["contact_name"].strip()).values()
+            customer = {
+                label: (
+                    reader.iloc[i, idx]
+                    if idx != 16
+                    else math.ceil(reader.iloc[i, idx] * 1000)
+                )
+                for label, idx in zip(labels, label_index)
+            }
+            queryset = Customer.objects.filter(
+                name__unaccent__icontains=customer["contact_name"].strip()
+            ).values()
             if queryset:
                 item = queryset[0]
                 customer["customer_id"] = item["id"]
@@ -50,4 +58,4 @@ class PlanViewSet(viewsets.ModelViewSet):
             # Call VRP algorithm
             main(customers)
 
-        return Response(customers, status=status.HTTP_200_OK)
+        return Response("OK", status=status.HTTP_200_OK)
