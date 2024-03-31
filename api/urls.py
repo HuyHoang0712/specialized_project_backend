@@ -19,6 +19,7 @@ router.register("customers", CustomerViewSet)
 router.register("orders", OrderViewSet)
 router.register("issues", IssueViewSet)
 router.register("plans", PlanViewSet)
+router.register("profile", ProfileViewSet)
 
 
 urlpatterns = [
