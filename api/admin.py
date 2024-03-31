@@ -14,7 +14,7 @@ admin.site.register(Issue)
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "role", "status"]
+    list_display = ["id", "name", "status"]
 
 
 @admin.register(Warehouse)

@@ -7,9 +7,8 @@ today = datetime.today().strftime("%Y-%m-%d")
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    # authentication_classes = (JWTAuthentication,)
-    authentication_classes = ()
-    permission_classes = ()
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     @action(detail=False, methods=["get"])
     def get_orders_by_date(self, request, pk=None):
@@ -32,7 +31,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer = OrderDetailSerializer(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["put"])
+
+    @action(detail=False, methods=["put"],
+            permission_classes=[permission_required("api.change_order", raise_exception=True)])
     def update_order(self, request):
         qr_id = request.query_params["id"]
         order = Order.objects.get(id=qr_id)
