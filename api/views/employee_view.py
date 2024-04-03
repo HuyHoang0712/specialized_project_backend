@@ -7,11 +7,14 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (
         IsAuthenticated,
-        permission_required("api.view_employee", raise_exception=True),
-        permission_required("api.add_employee", raise_exception=True),
-        permission_required("api.change_employee", raise_exception=True),
-        permission_required("api.delete_employee", raise_exception=True),
     )
 
-    def get_queryset(self):
-        return Employee.objects.all()
+    @action(detail=False, methods=["post"])
+    def create_user(self, request):
+        data = request.data
+        serializer_user = CreateEmployeeSerializer(data=data, many=True);
+        if serializer_user.is_valid():
+            serializer_user.create(serializer_user.validated_data)
+
+            return Response("User is created!", status=status.HTTP_201_CREATED)
+        return Response("User is not created!", status=status.HTTP_400_BAD_REQUEST)
