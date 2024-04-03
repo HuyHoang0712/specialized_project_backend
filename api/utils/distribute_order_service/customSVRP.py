@@ -243,15 +243,17 @@ class SVRPSolution:
                     continue
                 if solution.Value(routing.NextVar(node)) == node:
                     dropped_nodes.append(self.customers[manager.IndexToNode(node)])
-            print("dropped_nodes:", dropped_nodes, end="\n\n")
-            if len(dropped_nodes) > 0:
-                def find_first_match_index(lst, condition):
+
+            valid_dropped_nodes = list(filter(lambda x: x['total_tons'] > 0, dropped_nodes))
+            print("dropped_nodes:", valid_dropped_nodes, end="\n\n")
+            if len(valid_dropped_nodes) > 0:
+                def find_first_match_index(vehicle_list, condition):
                     return next(
-                        (idx for idx, item in enumerate(lst) if condition(item["capacity"])),
+                        (idx for idx, vehicle in enumerate(vehicle_list) if condition(vehicle["capacity"])),
                         None,
                     )
 
-                for customer in dropped_nodes:
+                for customer in valid_dropped_nodes:
                     vehicle_idx = find_first_match_index(
                         self.vehicles, lambda x: x < customer["total_tons"]
                     )
