@@ -14,12 +14,12 @@ today = datetime.today().strftime("%Y-%m-%d")
 
 class SVRPSolution:
     def __init__(
-        self,
-        vehicles: list[any],
-        customers: list[any],
-        distance_matrix: list[list[int]],
-        time_matrix: list[list[int]],
-        time_windows: list[(int, int)],
+            self,
+            vehicles: list[any],
+            customers: list[any],
+            distance_matrix: list[list[int]],
+            time_matrix: list[list[int]],
+            time_windows: list[(int, int)],
     ):
         self.num_vehicles = len(vehicles)
         self.num_customers = len(customers)
@@ -245,14 +245,9 @@ class SVRPSolution:
                     dropped_nodes.append(self.customers[manager.IndexToNode(node)])
             print("dropped_nodes:", dropped_nodes, end="\n\n")
             if len(dropped_nodes) > 0:
-
                 def find_first_match_index(lst, condition):
                     return next(
-                        (
-                            i
-                            for i, item in enumerate(lst)
-                            if condition(item["capacity"])
-                        ),
+                        (idx for idx, item in enumerate(lst) if condition(item["capacity"])),
                         None,
                     )
 
