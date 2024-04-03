@@ -11,6 +11,7 @@ def get_coordinate(address):
     }
     response = requests.get(GOOGLE_API, params=params)
     response = response.json()
+    print(response)
     if response["status"] == "OK":
         result = {
             "coordinate": response["results"][0]["geometry"]["location"],

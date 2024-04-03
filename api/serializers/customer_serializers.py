@@ -7,12 +7,6 @@ class CustomerSerializer(serializers.ModelSerializer):
         model = Customer
         fields = ["id", "name", "address", "longitude", "latitude"]
 
-    def to_representation(self, instance):
-        return {
-            "id": instance.id,
-            "name": instance.name,
-            "address": instance.address,
-        }
 
 # class CreateCustomerSerializer(serializers.ModelSerializer):
 #     class Meta:
