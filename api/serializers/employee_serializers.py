@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from api.models import *
+from datetime import datetime
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
@@ -19,10 +20,22 @@ class EmployeeSerializer(serializers.ModelSerializer):
         }
 
 
+def generate_employee_id():
+    # Get the current year
+    current_year = datetime.now().year
+
+    # Get the total number of employees
+    total_employees = Employee.objects.count()
+
+    # Generate the employee id
+    employee_id = str(current_year)[2:] + str(total_employees + 1).zfill(4)
+
+    return employee_id
+
+
 class CreateEmployeeSerializer(serializers.Serializer):
-    id = serializers.CharField(required=True)
-    name = serializers.CharField(max_length=50, required=True)
-    email = serializers.EmailField(max_length=254, required=True)
+    first_name = serializers.CharField(max_length=30, required=True)
+    last_name = serializers.CharField(max_length=50, required=True)
     Dob = serializers.DateField(required=True)
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
@@ -30,24 +43,23 @@ class CreateEmployeeSerializer(serializers.Serializer):
     group = serializers.CharField(required=True)
 
     def create(self, validated_data):
-        first_name, last_name = validated_data["name"].split(" ", 1)
         user = User.objects.create_user(
             username=validated_data["username"],
             password=validated_data["password"],
             email=validated_data["email"],
-            first_name=first_name,
-            last_name=last_name,
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
         )
         goups = Group.objects.get(name=validated_data["group"])
         user.groups.add(goups)
-        user.save()
         employee = Employee.objects.create(
-            id=validated_data["id"],
+            id=generate_employee_id(),
             user=user,
-            name=validated_data["name"],
+            name=validated_data["first_name"].join(" ", validated_data["last_name"]),
             email=validated_data["email"],
             date_of_birth=validated_data["Dob"],
             phone=validated_data["phone"],
         )
+        user.save()
         employee.save()
         return employee
