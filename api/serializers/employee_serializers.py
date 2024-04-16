@@ -6,16 +6,21 @@ from datetime import datetime
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
-        fields = ("id", "user", "name", "date_of_birth", "email", "status")
+        fields = ("id", "user", "name", "date_of_birth", "email", "phone", "status")
 
     def to_representation(self, instance):
         role = instance.user.groups.all()[0].name if instance.user.groups.all() else "Employee"
+        first_name = instance.user.first_name
+        last_name = instance.user.last_name
         return {
             "id": instance.id,
             "role": role,
+            "first_name": first_name,
+            "last_name": last_name,
             "name": instance.name,
             "date_of_birth": instance.date_of_birth,
             "email": instance.email,
+            "phone": instance.phone,
             "status": instance.status,
         }
 

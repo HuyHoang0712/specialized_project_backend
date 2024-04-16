@@ -41,3 +41,10 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         groups = Group.objects.all()
         serializer = GroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def get_employee_by_id(self, request):
+        employee_id = request.query_params.get("id")
+        employee = Employee.objects.get(id=employee_id)
+        serializer = EmployeeSerializer(employee)
+        return Response(serializer.data, status=status.HTTP_200_OK)
