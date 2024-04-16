@@ -12,12 +12,13 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def create_user(self, request):
         data = request.data
-        serializer_user = CreateEmployeeSerializer(data=data, many=True);
+        print(data)
+        serializer_user = CreateEmployeeSerializer(data=data)
         if serializer_user.is_valid():
             serializer_user.create(serializer_user.validated_data)
 
             return Response("User is created!", status=status.HTTP_201_CREATED)
-        return Response("User is not created!", status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer_user.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["get"])
     def get_employee_summary(self, request):
@@ -34,3 +35,9 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         }
 
         return Response(response, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def get_groups(self, request):
+        groups = Group.objects.all()
+        serializer = GroupSerializer(groups, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

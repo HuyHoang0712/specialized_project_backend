@@ -36,11 +36,12 @@ def generate_employee_id():
 class CreateEmployeeSerializer(serializers.Serializer):
     first_name = serializers.CharField(max_length=30, required=True)
     last_name = serializers.CharField(max_length=50, required=True)
-    Dob = serializers.DateField(required=True)
+    dob = serializers.DateField(required=True)
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
     phone = serializers.CharField(required=True, max_length=12)
     group = serializers.CharField(required=True)
+    email = serializers.EmailField(required=True)
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -55,11 +56,17 @@ class CreateEmployeeSerializer(serializers.Serializer):
         employee = Employee.objects.create(
             id=generate_employee_id(),
             user=user,
-            name=validated_data["first_name"].join(" ", validated_data["last_name"]),
+            name=validated_data["first_name"].join(" " + validated_data["last_name"]),
             email=validated_data["email"],
-            date_of_birth=validated_data["Dob"],
+            date_of_birth=validated_data["dob"],
             phone=validated_data["phone"],
         )
         user.save()
         employee.save()
         return employee
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ["name"]
