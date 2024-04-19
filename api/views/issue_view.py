@@ -26,3 +26,10 @@ class IssueViewSet(viewsets.ModelViewSet):
         queryset = Issue.objects.filter(status=qr_status).order_by("-date_time")
         serializer = IssueSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def get_issues_by_employee_id(self, request, pk=None):
+        qr_employee_id = request.query_params["employee_id"]
+        queryset = Issue.objects.filter(creator=qr_employee_id).order_by("-date_time")
+        serializer = IssueSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

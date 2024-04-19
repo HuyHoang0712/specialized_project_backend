@@ -71,6 +71,34 @@ class CreateEmployeeSerializer(serializers.Serializer):
         return employee
 
 
+class UpdateEmployeeSerializer(serializers.Serializer):
+    group = serializers.CharField(required=False)
+    phone = serializers.CharField(required=False, max_length=12)
+    email = serializers.EmailField(required=False)
+    password = serializers.CharField(required=False)
+    status = serializers.IntegerField(required=False)
+
+    def update(self, instance, validated_data):
+        user = instance.user
+        if "email" in validated_data.keys():
+            instance.email = validated_data["email"]
+            user.email = validated_data["email"]
+        if "password" in validated_data.keys():
+            user.set_password(validated_data["password"])
+        if "group" in validated_data.keys():
+            group = Group.objects.get(name=validated_data["group"])
+            user.groups.clear()
+            user.groups.add(group)
+        user.save()
+        if "status" in validated_data.keys():
+            instance.status = validated_data["status"]
+        if "phone" in validated_data.keys():
+            instance.phone = validated_data["phone"]
+        instance.save()
+        serializer = EmployeeSerializer(instance)
+        return serializer.data
+
+
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group

@@ -48,3 +48,14 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         employee = Employee.objects.get(id=employee_id)
         serializer = EmployeeSerializer(employee)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["put"])
+    def update_employee(self, request):
+        data = request.data
+        employee_id = request.query_params["id"]
+        employee = Employee.objects.get(id=employee_id)
+        serializer = UpdateEmployeeSerializer(data=data)
+        if serializer.is_valid():
+            employee = serializer.update(employee, serializer.validated_data)
+            return Response(employee, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
