@@ -4,6 +4,7 @@ from api.views.auth_view import *
 from api.views.employee_view import *
 from api.views.warehouse_view import *
 from api.views.notification_view import *
+from api.views.vehicle_view import *
 from api.views.customer_view import *
 from api.views.order_view import *
 from api.views.issue_view import *
