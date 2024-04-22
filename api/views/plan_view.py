@@ -17,13 +17,25 @@ class PlanViewSet(viewsets.ModelViewSet):
     # authentication_classes = ()
     # permission_classes = ()
 
-    @action(detail=False, methods=["get"])
+    @action(
+        detail=False,
+        methods=["get"],
+        permission_classes=[
+            permission_required("api.view_transportationplan", raise_exception=False)
+        ],
+    )
     def get_all_plans(self, request):
         queryset = TransportationPlan.objects.all()
         serializer = TransportationPlanSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["post"])
+    @action(
+        detail=False,
+        methods=["post"],
+        permission_classes=[
+            permission_required("api.add_transportationplan", raise_exception=False)
+        ],
+    )
     @parser_classes([FileUploadParser])
     def file_upload(self, request):
         data = request.data["file"]
@@ -59,5 +71,8 @@ class PlanViewSet(viewsets.ModelViewSet):
             # Call VRP algorithm
             plan_id = distribute_orders(customers)
         print(plan_id)
-        return Response(plan_id, status=status.HTTP_200_OK) if plan_id else Response("No plan created",
-                                                                                     status=status.HTTP_204_NO_CONTENT)
+        return (
+            Response(plan_id, status=status.HTTP_200_OK)
+            if plan_id
+            else Response("No plan created", status=status.HTTP_204_NO_CONTENT)
+        )

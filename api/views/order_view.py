@@ -10,30 +10,54 @@ class OrderViewSet(viewsets.ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
 
-    @action(detail=False, methods=["get"])
+    @action(
+        detail=False,
+        methods=["get"],
+        permission_classes=[
+            permission_required("api.view_order", raise_exception=False)
+        ],
+    )
     def get_orders_by_date(self, request, pk=None):
         qr_date = request.query_params["date"]
         queryset = Order.objects.filter(date=qr_date)
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["get"], url_path="get_orders_in_plan")
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="get_orders_in_plan",
+        permission_classes=[
+            permission_required("api.view_order", raise_exception=False)
+        ],
+    )
     def get_all_orders_in_transportation_plan(self, request, pk=None):
         qr_plan = request.query_params["plan_id"]
         queryset = Order.objects.filter(plan=qr_plan)
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["get"], url_path="get_order_by_id")
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="get_order_by_id",
+        permission_classes=[
+            permission_required("api.view_order", raise_exception=False)
+        ],
+    )
     def get_order_by_id(self, request, pk=None):
         qr_id = request.query_params["id"]
         queryset = Order.objects.get(id=qr_id)
         serializer = OrderDetailSerializer(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
-    @action(detail=False, methods=["put"],
-            permission_classes=[permission_required("api.change_order", raise_exception=True)])
+    @action(
+        detail=False,
+        methods=["put"],
+        permission_classes=[
+            permission_required("api.change_order", raise_exception=True)
+        ],
+    )
     def update_order(self, request):
         qr_id = request.query_params["id"]
         order = Order.objects.get(id=qr_id)
