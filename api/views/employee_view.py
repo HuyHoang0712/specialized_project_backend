@@ -9,7 +9,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         IsAuthenticated,
     )
 
-   @action(detail=False, methods=["post"])
+    @action(detail=False, methods=["post"])
     def create_user(self, request):
         data = request.data
         print(data)
