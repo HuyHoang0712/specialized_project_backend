@@ -20,6 +20,7 @@ class Employee(models.Model):
     date_of_birth = models.DateField()
     phone = models.CharField(max_length=12, null=True, blank=True)
     email = models.EmailField(max_length=254, null=True)
+    phone= models.CharField(max_length=12, null=True, blank=True)
     status = models.IntegerField(
         default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
     )

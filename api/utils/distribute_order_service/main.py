@@ -6,7 +6,7 @@ import functools
 DEPOT = "LF_VSIP_INV_F01"
 
 
-def main(customers):
+def distribute_orders(customers):
     # Get the active vehicles
     active_vehicles = Vehicle.objects.filter(status=0).values()
     active_vehicles = [vehicle for vehicle in active_vehicles]
@@ -48,7 +48,7 @@ def main(customers):
     routes = solution.get_solution()
 
     # Run the Tabu Search algorithm
-    solution.tabu_search()
+    return solution.tabu_search()
     # Print the best solution found
 
 

@@ -4,7 +4,7 @@ import pandas as pd
 import math
 from rest_framework.decorators import parser_classes
 from rest_framework.parsers import FileUploadParser
-from api.utils.distribute_order_service.main import main
+from api.utils.distribute_order_service.main import distribute_orders
 
 today = datetime.today().strftime("%Y-%m-%d")
 
@@ -32,6 +32,7 @@ class PlanViewSet(viewsets.ModelViewSet):
         labels = ["ship_code", "contact_name", "order_type", "total_tons"]
         customers = []
         unknow_customers = set()
+        plan_id = None
         for i in range(reader.shape[0]):
             customer = {
                 label: (
@@ -56,6 +57,7 @@ class PlanViewSet(viewsets.ModelViewSet):
             return Response(list(unknow_customers), status=status.HTTP_204_NO_CONTENT)
         else:
             # Call VRP algorithm
-            main(customers)
-
-        return Response("OK", status=status.HTTP_200_OK)
+            plan_id = distribute_orders(customers)
+        print(plan_id)
+        return Response(plan_id, status=status.HTTP_200_OK) if plan_id else Response("No plan created",
+                                                                                     status=status.HTTP_204_NO_CONTENT)

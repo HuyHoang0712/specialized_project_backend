@@ -23,10 +23,38 @@ class CustomerViewSet(viewsets.ModelViewSet):
         else:
             return Response("Please input address", status=status.HTTP_400_BAD_REQUEST)
 
-        print(data)
         serializer = CustomerSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=["get"])
+    def get_customer_by_id(self, request):
+        qr_id = request.query_params["id"]
+        queryset = Customer.objects.get(id=qr_id)
+        serializer = CustomerSerializer(queryset)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    @action(detail=False, methods=["put"])
+    def update_customer(self, request):
+        customer_id = request.query_params["id"]
+        data = request.data
+        if "address" in data.keys():
+            response = get_coordinate(data["address"])
+            if response["status"] == "OK":
+                coordinates = response["coordinate"]
+                data["longitude"] = coordinates["lng"]
+                data["latitude"] = coordinates["lat"]
+            else:
+                return Response("Invalid Address!", status=status.HTTP_400_BAD_REQUEST)
+        customer = Customer.objects.get(id=customer_id)
+        if customer:
+            serializer = CustomerSerializer(customer, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response("Customer is not founded!", status=status.HTTP_404_NOT_FOUND)
