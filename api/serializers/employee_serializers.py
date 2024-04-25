@@ -9,7 +9,11 @@ class EmployeeSerializer(serializers.ModelSerializer):
         fields = ("id", "user", "name", "date_of_birth", "email", "phone", "status")
 
     def to_representation(self, instance):
-        role = instance.user.groups.all()[0].name if instance.user.groups.all() else "Employee"
+        role = (
+            instance.user.groups.all()[0].name
+            if instance.user.groups.all()
+            else "Employee"
+        )
         first_name = instance.user.first_name
         last_name = instance.user.last_name
         return {
@@ -73,6 +77,8 @@ class CreateEmployeeSerializer(serializers.Serializer):
 
 class UpdateEmployeeSerializer(serializers.Serializer):
     group = serializers.CharField(required=False)
+    first_name = serializers.CharField(required=False, max_length=50)
+    last_name = serializers.CharField(max_length=50, required=False)
     phone = serializers.CharField(required=False, max_length=12)
     email = serializers.EmailField(required=False)
     password = serializers.CharField(required=False)
@@ -80,6 +86,11 @@ class UpdateEmployeeSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         user = instance.user
+        print(validated_data.keys())
+        if "first_name" in validated_data.keys():
+            user.first_name = validated_data["first_name"]
+        if "last_name" in validated_data.keys():
+            user.last_name = validated_data["last_name"]
         if "email" in validated_data.keys():
             instance.email = validated_data["email"]
             user.email = validated_data["email"]

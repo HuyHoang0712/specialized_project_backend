@@ -5,9 +5,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (
-        IsAuthenticated,
-    )
+    permission_classes = (IsAuthenticated,)
 
     @action(detail=False, methods=["post"])
     def create_user(self, request):
@@ -52,15 +50,15 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["put"])
     def update_employee(self, request):
         data = request.data
+        print(data)
         employee_id = request.query_params["id"]
         employee = Employee.objects.get(id=employee_id)
         serializer = UpdateEmployeeSerializer(data=data)
         if serializer.is_valid():
             employee = serializer.update(employee, serializer.validated_data)
+            print(employee)
             return Response(employee, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 class ProfileViewSet(viewsets.ModelViewSet):
