@@ -79,6 +79,7 @@ class UpdateEmployeeSerializer(serializers.Serializer):
     group = serializers.CharField(required=False)
     first_name = serializers.CharField(required=False, max_length=50)
     last_name = serializers.CharField(max_length=50, required=False)
+    date_of_birth = serializers.DateField(required=False)
     phone = serializers.CharField(required=False, max_length=12)
     email = serializers.EmailField(required=False)
     password = serializers.CharField(required=False)
@@ -101,6 +102,8 @@ class UpdateEmployeeSerializer(serializers.Serializer):
             user.groups.clear()
             user.groups.add(group)
         user.save()
+        if "date_of_birth" in validated_data.keys():
+            instance.date_of_birth = validated_data["date_of_birth"]
         if "status" in validated_data.keys():
             instance.status = validated_data["status"]
         if "phone" in validated_data.keys():

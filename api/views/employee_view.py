@@ -73,4 +73,5 @@ class ProfileViewSet(viewsets.ModelViewSet):
         print(request.user.id)
         profile = Employee.objects.filter(user=account_id)
         serializer = EmployeeSerializer(profile, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return_data = serializer.data[0]
+        return Response(return_data, status=status.HTTP_200_OK)
