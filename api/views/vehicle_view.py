@@ -29,3 +29,4 @@ class VehicleViewSet(viewsets.ModelViewSet):
         vehicle = Vehicle.objects.get(license_plate=vehicle_license)
         serializer = VehicleDetailSerializer(vehicle)
         return Response(serializer.data, status=status.HTTP_200_OK)
+

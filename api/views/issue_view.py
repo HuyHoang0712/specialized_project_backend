@@ -33,3 +33,10 @@ class IssueViewSet(viewsets.ModelViewSet):
         queryset = Issue.objects.filter(creator=qr_employee_id).order_by("-date_time")
         serializer = IssueSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def get_issues_of_vehicle(self, request, pk=None):
+        qr_vehicle = request.query_params["vehicle"]
+        queryset = Issue.objects.filter(vehicle=qr_vehicle).order_by("-date_time")
+        serializer = IssueSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
