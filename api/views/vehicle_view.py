@@ -22,3 +22,10 @@ class VehicleViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=["get"])
+    def get_vehicle_by_license(self, request):
+        vehicle_license = request.query_params.get("license_plate")
+        vehicle = Vehicle.objects.get(license_plate=vehicle_license)
+        serializer = VehicleDetailSerializer(vehicle)
+        return Response(serializer.data, status=status.HTTP_200_OK)
