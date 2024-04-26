@@ -102,6 +102,9 @@ class UpdateEmployeeSerializer(serializers.Serializer):
             user.groups.clear()
             user.groups.add(group)
         user.save()
+        if ("first_name" or "last_name") in validated_data.keys():
+            full_name = validated_data["first_name"] + " " + validated_data["last_name"]
+            instance.name = full_name
         if "date_of_birth" in validated_data.keys():
             instance.date_of_birth = validated_data["date_of_birth"]
         if "status" in validated_data.keys():
