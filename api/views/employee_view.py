@@ -75,3 +75,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer = EmployeeSerializer(profile, many=True)
         return_data = serializer.data[0]
         return Response(return_data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def get_employee_id(self, request, pk=None):
+        account_id = request.user.id
+        print(request.user.id)
+        profile = Employee.objects.filter(user=account_id)
+        serializer = EmployeeSerializer(profile, many=True)
+        return_data = serializer.data[0]["id"]
+        return Response(return_data, status=status.HTTP_200_OK)
