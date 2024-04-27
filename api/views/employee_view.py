@@ -50,13 +50,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["put"])
     def update_employee(self, request):
         data = request.data
-        print(data)
         employee_id = request.query_params["id"]
         employee = Employee.objects.get(id=employee_id)
         serializer = UpdateEmployeeSerializer(data=data)
         if serializer.is_valid():
             employee = serializer.update(employee, serializer.validated_data)
-            print(employee)
             return Response(employee, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -70,17 +68,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def get_user_profile(self, request, pk=None):
         account_id = request.user.id
-        print(request.user.id)
+
         profile = Employee.objects.filter(user=account_id)
         serializer = EmployeeSerializer(profile, many=True)
         return_data = serializer.data[0]
         return Response(return_data, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["get"])
-    def get_employee_id(self, request, pk=None):
-        account_id = request.user.id
-        print(request.user.id)
-        profile = Employee.objects.filter(user=account_id)
-        serializer = EmployeeSerializer(profile, many=True)
-        return_data = serializer.data[0]["id"]
-        return Response(return_data, status=status.HTTP_200_OK)
+

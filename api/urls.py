@@ -20,7 +20,7 @@ router.register("customers", CustomerViewSet)
 router.register("orders", OrderViewSet)
 router.register("issues", IssueViewSet)
 router.register("plans", PlanViewSet)
-router.register("profile", ProfileViewSet)
+router.register("profile", ProfileViewSet, basename="profile")
 
 urlpatterns = [
     path("v1/", include(router.urls)),
