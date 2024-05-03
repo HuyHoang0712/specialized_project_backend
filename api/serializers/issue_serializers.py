@@ -2,10 +2,10 @@ from rest_framework import serializers
 from api.models import *
 
 
-class RequestSerializer(serializers.ModelSerializer):
+class IssueSerializer(serializers.ModelSerializer):
     creator = serializers.SlugRelatedField(read_only=True, slug_field="name")
     class Meta:
-        model = Requests
+        model = Issue
         fields = (
             "id",
             "title",
@@ -14,7 +14,4 @@ class RequestSerializer(serializers.ModelSerializer):
             "status",
             "label",
             "creator",
-            "order",
-            "vehicle",
-            "warehouse",
         )
