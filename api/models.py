@@ -4,18 +4,12 @@ from django.utils import timezone
 
 # Create your models here.
 
-ORDER_STATUS = [(0, "Pending"), (1, "In Progress"), (2, "Completed"), (3, "Canceled")]
+STATUS_ORDER = [(0, "Pending"), (1, "In Progress"), (2, "Completed"), (3, "Cancel")]
 
-VEHICLE_STATUS = [
-    (0, "Repairing"),
-    (1, "Available"),
-    (2, "Delivering"),
-    (3, "Unavailable"),
-]
-
-EMPLOYEE_STATUS = [
-    (1, "Available"),
-    (3, "On Leave"),
+STATUS_EMPL_VEHICLE = [
+    (0, "Available"),
+    (1, "Busy"),
+    (2, "On Break"),
 ]
 
 
@@ -28,7 +22,7 @@ class Employee(models.Model):
     email = models.EmailField(max_length=254, null=True)
     phone= models.CharField(max_length=12, null=True, blank=True)
     status = models.IntegerField(
-        default=EMPLOYEE_STATUS[0][0], choices=EMPLOYEE_STATUS
+        default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
     )
 
 
@@ -58,7 +52,7 @@ class Vehicle(models.Model):
     capacity = models.IntegerField(null=False)
     fuel_consumption_level = models.IntegerField(null=False)
     status = models.IntegerField(
-        default=VEHICLE_STATUS[0][0], choices=VEHICLE_STATUS
+        default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
     )
     brand = models.CharField(default=None, max_length=32, blank=True)
     driver = models.OneToOneField(
@@ -87,21 +81,24 @@ class Order(models.Model):
         Customer, on_delete=models.SET_NULL, null=True, related_name="delivery_point"
     )
     vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
-    status = models.IntegerField(default=ORDER_STATUS[0][0], choices=ORDER_STATUS)
+    status = models.IntegerField(default=STATUS_ORDER[0][0], choices=STATUS_ORDER)
     plan = models.ForeignKey(TransportationPlan, on_delete=models.SET_NULL, null=True)
 
 
-class Requests(models.Model):
+class Issue(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=254)
-    label = models.CharField(max_length=254)
     description = models.TextField()
     date_time = models.DateTimeField()
-    status = models.IntegerField(default=ORDER_STATUS[0][0], choices=ORDER_STATUS)
+    status = models.IntegerField(default=STATUS_ORDER[0][0], choices=STATUS_ORDER)
+    label = models.CharField(max_length=254)
     creator = models.ForeignKey(
         Employee, on_delete=models.SET_NULL, null=True, blank=True
     )
-
-class Requests_Vehicle(models.Model):
-    request_id = models.OneToOneField(Requests, on_delete=models.CASCADE)
-    vehicle_id = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
+    vehicle = models.ForeignKey(
+        Vehicle, on_delete=models.SET_NULL, null=True, blank=True
+    )
+    warehouse = models.ForeignKey(
+        Warehouse, on_delete=models.SET_NULL, null=True, blank=True
+    )
