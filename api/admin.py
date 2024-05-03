@@ -9,7 +9,7 @@ admin.site.register(Notification)
 # admin.site.register(Vehicle)
 # admin.site.register(Customer)
 # admin.site.register(Order)
-admin.site.register(Requests)
+admin.site.register(Issue)
 
 
 @admin.register(Employee)
