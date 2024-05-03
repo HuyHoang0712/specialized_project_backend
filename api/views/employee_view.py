@@ -5,9 +5,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
     authentication_classes = (JWTAuthentication,)
-    permission_classes = (
-        IsAuthenticated,
-    )
+    permission_classes = (IsAuthenticated,)
 
     @action(detail=False, methods=["post"])
     def create_user(self, request):
@@ -59,3 +57,21 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             employee = serializer.update(employee, serializer.validated_data)
             return Response(employee, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProfileViewSet(viewsets.ModelViewSet):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer
+    authentication_classes = (JWTAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    @action(detail=False, methods=["get"])
+    def get_user_profile(self, request, pk=None):
+        account_id = request.user.id
+
+        profile = Employee.objects.filter(user=account_id)
+        serializer = EmployeeSerializer(profile, many=True)
+        return_data = serializer.data[0]
+        return Response(return_data, status=status.HTTP_200_OK)
+
+
