@@ -17,7 +17,4 @@ class IssueSerializer(serializers.ModelSerializer):
             "status",
             "label",
             "creator",
-            "order",
-            "vehicle",
-            "warehouse",
         )

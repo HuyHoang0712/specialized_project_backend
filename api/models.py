@@ -20,7 +20,7 @@ class Employee(models.Model):
     date_of_birth = models.DateField()
     phone = models.CharField(max_length=12, null=True, blank=True)
     email = models.EmailField(max_length=254, null=True)
-    phone= models.CharField(max_length=12, null=True, blank=True)
+    phone = models.CharField(max_length=12, null=True, blank=True)
     status = models.IntegerField(
         default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
     )
@@ -52,7 +52,7 @@ class Vehicle(models.Model):
     capacity = models.IntegerField(null=False)
     fuel_consumption_level = models.IntegerField(null=False)
     status = models.IntegerField(
-        default=STATUS_EMPL_VEHICLE[0][0], choices=STATUS_EMPL_VEHICLE
+        default=VEHICLE_STATUS[1][0], choices=VEHICLE_STATUS
     )
     brand = models.CharField(default=None, max_length=32, blank=True)
     driver = models.OneToOneField(
@@ -95,10 +95,7 @@ class Issue(models.Model):
     creator = models.ForeignKey(
         Employee, on_delete=models.SET_NULL, null=True, blank=True
     )
-    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True)
-    vehicle = models.ForeignKey(
-        Vehicle, on_delete=models.SET_NULL, null=True, blank=True
-    )
-    warehouse = models.ForeignKey(
-        Warehouse, on_delete=models.SET_NULL, null=True, blank=True
-    )
+
+class IssueVehicle(models.Model):
+    request_id = models.OneToOneField(Issue, on_delete=models.CASCADE)
+    vehicle_id = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
