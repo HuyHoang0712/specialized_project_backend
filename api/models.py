@@ -105,4 +105,4 @@ class Issue(models.Model):
 class IssueVehicle(models.Model):
     request_id = models.OneToOneField(Issue, on_delete=models.CASCADE)
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
-    cost = models.IntegerField(null=True)
+    cost = models.IntegerField(default=0)
