@@ -6,9 +6,6 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0004_remove_requests_vehicle_request_id_and_more'),
-    ]
 
     operations = [
         migrations.CreateModel(
