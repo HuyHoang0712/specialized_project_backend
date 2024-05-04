@@ -47,3 +47,10 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response("Order is not founded!", status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=["get"])
+    def get_order_of_vehicle(self, request):
+        vehicle_id = request.query_params["vehicle"]
+        queryset = Order.objects.filter(vehicle=vehicle_id)
+        serializer = OrderSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

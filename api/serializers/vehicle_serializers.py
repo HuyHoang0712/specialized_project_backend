@@ -15,6 +15,16 @@ class VehicleSerializer(serializers.ModelSerializer):
             "driver",
         )
 
+    def to_representation(self, instance):
+        return {
+            "license_plate": instance.license_plate,
+            "capacity": instance.capacity,
+            "fuel_consumption_level": instance.fuel_consumption_level,
+            "status": instance.status,
+            "brand": instance.brand,
+            "driver": instance.driver.name,
+        }
+
 
 class VehicleDetailSerializer(serializers.ModelSerializer):
     driver = EmployeeSerializer(
