@@ -9,17 +9,19 @@ admin.site.register(Notification)
 # admin.site.register(Vehicle)
 # admin.site.register(Customer)
 # admin.site.register(Order)
-admin.site.register(Issue)
+
+@admin.register(IssueVehicle)
+class IssueVehicleAdmin(admin.ModelAdmin):
+    list_display = ["vehicle_id", "request_id", "cost"]
+
+@admin.register(Issue)
+class IssueAdmin(admin.ModelAdmin):
+    list_display = ["id", "title", "label"]
 
 
 @admin.register(Employee)
 class EmployeeAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "status"]
-
-
-@admin.register(Warehouse)
-class WarehouseAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "address"]
 
 
 @admin.register(TransportationPlan)
