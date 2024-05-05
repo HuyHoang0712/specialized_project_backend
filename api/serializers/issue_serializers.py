@@ -4,6 +4,7 @@ from api.models import *
 
 class IssueSerializer(serializers.ModelSerializer):
     creator = serializers.SlugRelatedField(read_only=True, slug_field="name")
+
     class Meta:
         model = Issue
         fields = (

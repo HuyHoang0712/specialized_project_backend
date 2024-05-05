@@ -7,8 +7,26 @@ class VehicleViewSet(viewsets.ModelViewSet):
     authentication_classes = (JWTAuthentication,)
     permission_classes = (
         IsAuthenticated,
-        permission_required("api.view_vehicle", raise_exception=True),
-        permission_required("api.add_vehicle", raise_exception=True),
-        permission_required("api.change_vehicle", raise_exception=True),
-        permission_required("api.delete_vehicle", raise_exception=True),
     )
+
+    @action(detail=False, methods=["get"])
+    def get_vehicle_brands(self, request):
+        brands = Vehicle.objects.values("brand").distinct()
+        return Response(brands, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["post"])
+    def create_vehicle(self, request):
+        data = request.data
+        serializer = VehicleSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False, methods=["get"])
+    def get_vehicle_by_license(self, request):
+        vehicle_license = request.query_params.get("license_plate")
+        vehicle = Vehicle.objects.get(license_plate=vehicle_license)
+        serializer = VehicleDetailSerializer(vehicle)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+

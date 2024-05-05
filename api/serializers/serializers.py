@@ -5,5 +5,4 @@ from .employee_serializers import *
 from .noti_serializers import *
 from .plan_serializers import *
 from .vehicle_serializers import *
-from .warehouse_serializers import *
 from .issue_serializers import *

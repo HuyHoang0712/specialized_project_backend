@@ -65,3 +65,10 @@ class OrderViewSet(viewsets.ModelViewSet):
             if coordinates not in set_of_coordinates:
                 set_of_coordinates += [coordinates]
         return Response(set_of_coordinates, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def get_order_of_vehicle(self, request):
+        vehicle_id = request.query_params["vehicle"]
+        queryset = Order.objects.filter(vehicle=vehicle_id)
+        serializer = OrderSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

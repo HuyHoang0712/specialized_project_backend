@@ -22,7 +22,6 @@ class OrderSerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance):
-        issues = Issue.objects.filter(order_id=instance.id).count()
         return {
             "id": instance.id,
             "ship_code": instance.ship_code,
@@ -33,7 +32,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "delivery_point": instance.delivery_point.name,
             "vehicle": instance.vehicle.license_plate if instance.vehicle else None,
             "status": instance.status,
-            "issues_count": issues,
+
         }
 
 

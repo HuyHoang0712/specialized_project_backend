@@ -18,6 +18,13 @@ EMPLOYEE_STATUS = [
     (3, "On Leave"),
 ]
 
+ISSUE_STATUS = [
+    (0, "Pending"),
+    (1, "Approved"),
+    (2, "Denied"),
+    (3, "Canceled"),
+]
+
 
 class Employee(models.Model):
     id = models.CharField(primary_key=True, max_length=10)
@@ -30,14 +37,6 @@ class Employee(models.Model):
     status = models.IntegerField(
         default=EMPLOYEE_STATUS[0][0], choices=EMPLOYEE_STATUS
     )
-
-
-class Warehouse(models.Model):
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=50)
-    address = models.TextField()
-    longitude = models.CharField(max_length=32)
-    latitude = models.CharField(max_length=32)
 
 
 class TransportationPlan(models.Model):
@@ -97,11 +96,13 @@ class Issue(models.Model):
     label = models.CharField(max_length=254)
     description = models.TextField()
     date_time = models.DateTimeField()
-    status = models.IntegerField(default=ORDER_STATUS[0][0], choices=ORDER_STATUS)
+    status = models.IntegerField(default=ISSUE_STATUS[0][0], choices=ISSUE_STATUS)
     creator = models.ForeignKey(
         Employee, on_delete=models.SET_NULL, null=True, blank=True
     )
 
+
 class IssueVehicle(models.Model):
     request_id = models.OneToOneField(Issue, on_delete=models.CASCADE)
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
+    cost = models.IntegerField(default=0)
