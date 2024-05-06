@@ -72,3 +72,27 @@ class OrderViewSet(viewsets.ModelViewSet):
         queryset = Order.objects.filter(vehicle=vehicle_id)
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def get_order_coordinates_by_id(self, request, pk=None):
+        qr_id = request.query_params["id"]
+        queryset = Order.objects.get(id=qr_id)
+        order = OrderCoordinateSerializer(queryset)
+        set_of_coordinates = []
+        pickup_point_coordinates = [
+            order.data["pickup_point"]["longitude"],
+            order.data["pickup_point"]["latitude"],
+        ]
+        delivery_point_coordinates = [
+            order.data["delivery_point"]["longitude"],
+            order.data["delivery_point"]["latitude"],
+        ]
+        set_of_coordinates = [pickup_point_coordinates, delivery_point_coordinates]
+        # for order in orders.data:
+        #     coordinates = [
+        #         order["delivery_point"]["longitude"],
+        #         order["delivery_point"]["latitude"],
+        #     ]
+        #     if coordinates not in set_of_coordinates:
+        #         set_of_coordinates += [coordinates]
+        return Response(set_of_coordinates, status=status.HTTP_200_OK)
