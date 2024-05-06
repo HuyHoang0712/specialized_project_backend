@@ -46,14 +46,43 @@ class IssueViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
-    def get_employee_issues(self, request, pk=None):
+    def get_issues(self, request, pk=None):
+        qr_type = request.query_params["type"]
+        if qr_type == "issue-vehicle":
+            vehicle_issue_ids = IssueVehicle.objects.all()
+            issue_serializer = VehicleIssueSerializer(vehicle_issue_ids, many=True)
+            return Response(issue_serializer.data, status=status.HTTP_200_OK)
         vehicle_issue_ids = IssueVehicle.objects.values("request_id")
         issues = Issue.objects.exclude(id__in=vehicle_issue_ids).order_by("-date_time")
         issue_serializer = IssueSerializer(issues, many=True)
         return Response(issue_serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
-    def get_vehicle_issues(self, request, pk=None):
-        vehicle_issue_ids = IssueVehicle.objects.all()
-        issue_serializer = VehicleIssueSerializer(vehicle_issue_ids, many=True)
-        return Response(issue_serializer.data, status=status.HTTP_200_OK)
+    def get_issue_by_id(self, request, pk=None):
+        qr_id = request.query_params["id"]
+        qr_type = request.query_params["type"]
+        if qr_type == "issue-vehicle":
+            vehicle = IssueVehicle.objects.get(request_id=qr_id)
+            serializer = VehicleIssueSerializer(vehicle, many=False)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        queryset = Issue.objects.get(id=qr_id)
+        serializer = IssueSerializer(queryset, many=False)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    @action(detail=False, methods=["put"])
+    def update_issue_status(self, request, pk=None):
+        qr_id = request.query_params["id"]
+        qr_type = request.query_params["type"]
+
+        issue = Issue.objects.get(id=qr_id)
+        serializers = IssueSerializer(issue, data=request.data, partial=True)
+        if serializers.is_valid():
+            serializers.save()
+            if qr_type == "issue-vehicle":
+                vehicle = IssueVehicle.objects.get(request_id=qr_id)
+                vehicle_serializer = VehicleIssueSerializer(vehicle, many=False)
+                return Response(vehicle_serializer.data, status=status.HTTP_200_OK)
+
+            return Response(serializers.data, status=status.HTTP_200_OK)
+        return Response(serializers.errors, status=status.HTTP_200_OK)

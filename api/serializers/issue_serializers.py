@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from api.models import *
+from datetime import datetime, timezone
 
 
 class IssueSerializer(serializers.ModelSerializer):
@@ -19,7 +20,6 @@ class IssueSerializer(serializers.ModelSerializer):
 
 
 class VehicleIssueSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Issue
 
@@ -31,8 +31,10 @@ class VehicleIssueSerializer(serializers.ModelSerializer):
             "title": issue.data["title"],
             "label": issue.data["label"],
             "description": issue.data["description"],
-            "date_time": issue.data["date_time"],
+            "date_time": datetime.fromisoformat(issue.data['date_time'][:-1]).astimezone(timezone.utc).strftime(
+                '%Y-%m-%d %H:%M:%S'),
             "status": issue.data["status"],
             "creator": issue.data["creator"],
             "vehicle_id": instance.vehicle_id.license_plate,
+            "cost": instance.cost,
         }
