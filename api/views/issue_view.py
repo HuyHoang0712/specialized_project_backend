@@ -54,7 +54,6 @@ class IssueViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def get_vehicle_issues(self, request, pk=None):
-        vehicle_issue_ids = IssueVehicle.objects.values("request_id")
-        issues = Issue.objects.filter(id__in=vehicle_issue_ids).order_by("-date_time")
-        issue_serializer = IssueSerializer(issues, many=True)
+        vehicle_issue_ids = IssueVehicle.objects.all()
+        issue_serializer = VehicleIssueSerializer(vehicle_issue_ids, many=True)
         return Response(issue_serializer.data, status=status.HTTP_200_OK)
