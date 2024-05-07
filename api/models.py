@@ -8,21 +8,21 @@ ORDER_STATUS = [(0, "Pending"), (1, "In Progress"), (2, "Completed"), (3, "Cance
 
 VEHICLE_STATUS = [
     (0, "Repairing"),
-    (1, "Available"),
-    (2, "Delivering"),
+    (1, "Delivering"),
+    (2, "Available"),
     (3, "Unavailable"),
 ]
 
 EMPLOYEE_STATUS = [
-    (1, "Available"),
+    (2, "Available"),
     (3, "On Leave"),
 ]
 
 ISSUE_STATUS = [
     (0, "Pending"),
-    (1, "Approved"),
-    (2, "Denied"),
-    (3, "Canceled"),
+    (2, "Approved"),
+    (3, "Denied"),
+    (4, "Canceled"),
 ]
 
 
