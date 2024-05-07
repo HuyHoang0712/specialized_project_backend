@@ -35,7 +35,7 @@ class Employee(models.Model):
     email = models.EmailField(max_length=254, null=True)
     phone = models.CharField(max_length=12, null=True, blank=True)
     status = models.IntegerField(
-        default=EMPLOYEE_STATUS[0][0], choices=EMPLOYEE_STATUS
+        default=2, choices=EMPLOYEE_STATUS
     )
 
 
@@ -57,7 +57,7 @@ class Vehicle(models.Model):
     capacity = models.IntegerField(null=False)
     fuel_consumption_level = models.IntegerField(null=False)
     status = models.IntegerField(
-        default=VEHICLE_STATUS[1][0], choices=VEHICLE_STATUS
+        default=2, choices=VEHICLE_STATUS
     )
     brand = models.CharField(default=None, max_length=32, blank=True)
     driver = models.OneToOneField(
@@ -86,7 +86,7 @@ class Order(models.Model):
         Customer, on_delete=models.SET_NULL, null=True, related_name="delivery_point"
     )
     vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
-    status = models.IntegerField(default=ORDER_STATUS[0][0], choices=ORDER_STATUS)
+    status = models.IntegerField(default=0, choices=ORDER_STATUS)
     plan = models.ForeignKey(TransportationPlan, on_delete=models.SET_NULL, null=True)
 
 
@@ -96,7 +96,7 @@ class Issue(models.Model):
     label = models.CharField(max_length=254)
     description = models.TextField()
     date_time = models.DateTimeField()
-    status = models.IntegerField(default=ISSUE_STATUS[0][0], choices=ISSUE_STATUS)
+    status = models.IntegerField(default=0, choices=ISSUE_STATUS)
     creator = models.ForeignKey(
         Employee, on_delete=models.SET_NULL, null=True, blank=True
     )

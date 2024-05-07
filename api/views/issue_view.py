@@ -46,6 +46,13 @@ class IssueViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
+    def get_issues_of_vehicle(self, request, pk=None):
+        qr_vehicle_id = request.query_params["vehicle"]
+        queryset = IssueVehicle.objects.filter(vehicle_id=qr_vehicle_id)
+        serializer = VehicleIssueSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
     def get_issues(self, request, pk=None):
         qr_type = request.query_params["type"]
         if qr_type == "issue-vehicle":
