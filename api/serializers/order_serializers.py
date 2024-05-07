@@ -2,7 +2,6 @@ from rest_framework import serializers
 from api.models import *
 from .employee_serializers import *
 from .vehicle_serializers import *
-from .customer_serializers import *
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -32,6 +31,7 @@ class OrderSerializer(serializers.ModelSerializer):
             "delivery_point": instance.delivery_point.name,
             "vehicle": instance.vehicle.license_plate if instance.vehicle else None,
             "status": instance.status,
+
         }
 
 
@@ -89,28 +89,3 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             "status",
             "plan",
         )
-
-
-class OrderCoordinateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Order
-        fields = [
-            "date",
-            "pickup_point",
-            "delivery_point",
-            "status",
-        ]
-
-    def to_representation(self, instance):
-        pickup_point = CustomerSerializer(
-            instance.pickup_point, many=False, read_only=True
-        )
-        customer = CustomerSerializer(
-            instance.delivery_point, many=False, read_only=True
-        )
-        return {
-            "date": instance.date,
-            "pickup_point": pickup_point.data,
-            "delivery_point": customer.data,
-            "status": instance.status,
-        }

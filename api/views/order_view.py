@@ -31,13 +31,9 @@ class OrderViewSet(viewsets.ModelViewSet):
         serializer = OrderDetailSerializer(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(
-        detail=False,
-        methods=["put"],
-        permission_classes=[
-            permission_required("api.change_order", raise_exception=True)
-        ],
-    )
+
+    @action(detail=False, methods=["put"],
+            permission_classes=[permission_required("api.change_order", raise_exception=True)])
     def update_order(self, request):
         qr_id = request.query_params["id"]
         order = Order.objects.get(id=qr_id)
@@ -46,25 +42,11 @@ class OrderViewSet(viewsets.ModelViewSet):
             if serializer.is_valid():
                 serializer.save()
                 res_serializer = OrderDetailSerializer(order)
+
                 return Response(res_serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         return Response("Order is not founded!", status=status.HTTP_404_NOT_FOUND)
-
-    @action(detail=False, methods=["get"])
-    def get_recent_orders_coordinates(self, request, pk=None):
-        qr_date = request.query_params["date"]
-        queryset = Order.objects.filter(date=qr_date)
-        orders = OrderCoordinateSerializer(queryset, many=True)
-        set_of_coordinates = []
-        for order in orders.data:
-            coordinates = [
-                order["delivery_point"]["longitude"],
-                order["delivery_point"]["latitude"],
-            ]
-            if coordinates not in set_of_coordinates:
-                set_of_coordinates += [coordinates]
-        return Response(set_of_coordinates, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
     def get_order_of_vehicle(self, request):
@@ -72,27 +54,3 @@ class OrderViewSet(viewsets.ModelViewSet):
         queryset = Order.objects.filter(vehicle=vehicle_id)
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @action(detail=False, methods=["get"])
-    def get_order_coordinates_by_id(self, request, pk=None):
-        qr_id = request.query_params["id"]
-        queryset = Order.objects.get(id=qr_id)
-        order = OrderCoordinateSerializer(queryset)
-        set_of_coordinates = []
-        pickup_point_coordinates = [
-            order.data["pickup_point"]["longitude"],
-            order.data["pickup_point"]["latitude"],
-        ]
-        delivery_point_coordinates = [
-            order.data["delivery_point"]["longitude"],
-            order.data["delivery_point"]["latitude"],
-        ]
-        set_of_coordinates = [pickup_point_coordinates, delivery_point_coordinates]
-        # for order in orders.data:
-        #     coordinates = [
-        #         order["delivery_point"]["longitude"],
-        #         order["delivery_point"]["latitude"],
-        #     ]
-        #     if coordinates not in set_of_coordinates:
-        #         set_of_coordinates += [coordinates]
-        return Response(set_of_coordinates, status=status.HTTP_200_OK)
