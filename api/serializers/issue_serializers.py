@@ -22,6 +22,7 @@ class IssueSerializer(serializers.ModelSerializer):
 class VehicleIssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
+        fields = "__all__"
 
     def to_representation(self, instance):
         vehicle_issue = IssueVehicle.objects.get(request_id=instance.id)

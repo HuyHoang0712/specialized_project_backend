@@ -36,6 +36,13 @@ class Employee(models.Model):
     status = models.IntegerField(
         default=2, choices=EMPLOYEE_STATUS
     )
+    class Meta:
+        permissions = [
+            (
+                "supervisor",
+                "can act as a supervisor",
+            )
+        ]
 
 
 class TransportationPlan(models.Model):

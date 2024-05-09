@@ -22,6 +22,7 @@ router.register("profile", ProfileViewSet, basename="profile")
 
 urlpatterns = [
     path("v1/", include(router.urls)),
-    path("auth/login", UserLoginView.as_view(), name="user_login"),
-    path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh_view"),
+    path("auth/login/supervisor", SupervisorLoginView.as_view(), name="supervisor_login"),
+    path("auth/login/employee", EmployeeLoginView.as_view(), name="employee_login"),
+    path("auth/refresh/", TokenRefreshView.as_view(), name="token_refresh_view"),
 ]

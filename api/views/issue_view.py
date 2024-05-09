@@ -80,20 +80,21 @@ class IssueViewSet(viewsets.ModelViewSet):
         serializer = IssueSerializer(queryset, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
     @action(detail=False, methods=["put"])
     def update_issue_status(self, request, pk=None):
         qr_id = request.query_params["id"]
         qr_type = request.query_params["type"]
 
         issue = Issue.objects.get(id=qr_id)
+        if qr_type == "issue-vehicle":
+            serializers = VehicleIssueSerializer(issue, data=request.data, partial=True)
+            if serializers.is_valid():
+                serializers.save()
+                return Response(serializers.data, status=status.HTTP_200_OK)
+            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
         serializers = IssueSerializer(issue, data=request.data, partial=True)
         if serializers.is_valid():
             serializers.save()
-            if qr_type == "issue-vehicle":
-                vehicle = IssueVehicle.objects.get(request_id=qr_id)
-                vehicle_serializer = VehicleIssueSerializer(vehicle, many=False)
-                return Response(vehicle_serializer.data, status=status.HTTP_200_OK)
-
             return Response(serializers.data, status=status.HTTP_200_OK)
         return Response(serializers.errors, status=status.HTTP_200_OK)

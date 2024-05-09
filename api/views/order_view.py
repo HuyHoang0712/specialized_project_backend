@@ -1,7 +1,7 @@
 from .backend import *
 from datetime import datetime
 from django.db.models import Count
-from django.db.models.functions import TruncMonth
+from django.db.models.functions import ExtractMonth
 from django.utils import timezone
 from dateutil.relativedelta import relativedelta
 
@@ -15,16 +15,22 @@ class OrderViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     @action(detail=False, methods=["get"])
-    def get_order_summary(self, request):
+    def get_order_summary_of_customer(self, request):
+
+        customer_id = request.query_params["customer_id"]
         # Calculate the date 6 months ago
         six_months_ago = timezone.now() - relativedelta(months=6)
 
         # Filter the orders from the last 6 months
-        queryset = Order.objects.filter(date__gte=six_months_ago)
+        queryset = Order.objects.filter(date__gte=six_months_ago, delivery_point_id=customer_id)
 
         # Annotate the queryset with the count of each status for each month
-        order_summary = queryset.annotate(month=TruncMonth('date')).values('month', 'status').annotate(
-            count=Count('status')).order_by('month', 'status')
+        order_summary = queryset.annotate(month=ExtractMonth('date')).values('month').annotate(
+            pending=Count('status', filter=models.Q(status=0)),
+            in_progress=Count('status', filter=models.Q(status=1)),
+            completed=Count('status', filter=models.Q(status=2)),
+            canceled=Count('status', filter=models.Q(status=3))
+        ).order_by('month')
 
         return Response(order_summary, status=status.HTTP_200_OK)
 
