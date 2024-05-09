@@ -22,9 +22,9 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     def get_employee_summary(self, request):
         data = Employee.objects.all()
         total = data.count()
-        available = data.filter(status=0).count()
+        available = data.filter(status=2).count()
         busy = data.filter(status=1).count()
-        on_break = data.filter(status=2).count()
+        on_break = data.filter(status=3).count()
         response = {
             "total": total,
             "available": available,

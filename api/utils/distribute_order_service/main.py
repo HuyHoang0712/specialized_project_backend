@@ -8,7 +8,7 @@ DEPOT = "LF_VSIP_INV_F01"
 
 def distribute_orders(customers):
     # Get the active vehicles
-    active_vehicles = Vehicle.objects.filter(status=0).values()
+    active_vehicles = Vehicle.objects.filter(status=2).values()
     active_vehicles = [vehicle for vehicle in active_vehicles]
     active_vehicles.sort(reverse=True, key=lambda a: a["capacity"])
     depot = Customer.objects.filter(name=DEPOT).values()

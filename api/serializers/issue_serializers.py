@@ -24,17 +24,16 @@ class VehicleIssueSerializer(serializers.ModelSerializer):
         model = Issue
 
     def to_representation(self, instance):
-        issue = IssueSerializer(instance.request_id, many=False, read_only=True)
+        vehicle_issue = IssueVehicle.objects.get(request_id=instance.id)
 
         return {
-            "id": issue.data["id"],
-            "title": issue.data["title"],
-            "label": issue.data["label"],
-            "description": issue.data["description"],
-            "date_time": datetime.fromisoformat(issue.data['date_time'][:-1]).astimezone(timezone.utc).strftime(
-                '%Y-%m-%d %H:%M:%S'),
-            "status": issue.data["status"],
-            "creator": issue.data["creator"],
-            "vehicle_id": instance.vehicle_id.license_plate,
-            "cost": instance.cost,
+            "id": instance.id,
+            "title": instance.title,
+            "label": instance.label,
+            "description": instance.description,
+            "date_time": instance.date_time,
+            "status": instance.status,
+            "creator": instance.creator.name,
+            "vehicle_id": vehicle_issue.vehicle_id.license_plate,
+            "cost": vehicle_issue.cost,
         }

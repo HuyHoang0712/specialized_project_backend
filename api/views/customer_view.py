@@ -58,3 +58,12 @@ class CustomerViewSet(viewsets.ModelViewSet):
                 return Response(serializer.data, status=status.HTTP_200_OK)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response("Customer is not founded!", status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=["delete"])
+    def delete_customer(self, request):
+        customer_id = request.query_params["id"]
+        customer = Customer.objects.get(id=customer_id)
+        if customer:
+            customer.delete()
+            return Response("Customer is deleted!", status=status.HTTP_200_OK)
+        return Response("Customer is not founded!", status=status.HTTP_404_NOT_FOUND)

@@ -1,5 +1,9 @@
 from .backend import *
 from datetime import datetime
+from django.db.models import Count
+from django.db.models.functions import TruncMonth
+from django.utils import timezone
+from dateutil.relativedelta import relativedelta
 
 today = datetime.today().strftime("%Y-%m-%d")
 
@@ -9,6 +13,20 @@ class OrderViewSet(viewsets.ModelViewSet):
     serializer_class = OrderSerializer
     authentication_classes = (JWTAuthentication,)
     permission_classes = (IsAuthenticated,)
+
+    @action(detail=False, methods=["get"])
+    def get_order_summary(self, request):
+        # Calculate the date 6 months ago
+        six_months_ago = timezone.now() - relativedelta(months=6)
+
+        # Filter the orders from the last 6 months
+        queryset = Order.objects.filter(date__gte=six_months_ago)
+
+        # Annotate the queryset with the count of each status for each month
+        order_summary = queryset.annotate(month=TruncMonth('date')).values('month', 'status').annotate(
+            count=Count('status')).order_by('month', 'status')
+
+        return Response(order_summary, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
     def get_orders_by_date(self, request, pk=None):
@@ -53,7 +71,14 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response("Order is not founded!", status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=["get"])
-    def get_order_of_vehicle(self, request):
+    def get_orders_of_delivery_point(self, request):
+        qr_id = request.query_params["delivery_point"]
+        queryset = Order.objects.filter(delivery_point=qr_id)
+        serializer = OrderSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
+    def get_orders_of_vehicle(self, request):
         vehicle_id = request.query_params["vehicle"]
         queryset = Order.objects.filter(vehicle=vehicle_id)
         serializer = OrderSerializer(queryset, many=True)
