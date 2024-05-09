@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from api.models import *
 from datetime import datetime, timezone
+from ..serializers.employee_serializers import *
 
 
 class IssueSerializer(serializers.ModelSerializer):
@@ -17,6 +18,28 @@ class IssueSerializer(serializers.ModelSerializer):
             "label",
             "creator",
         )
+
+
+class CreateIssueSerializer(serializers.Serializer):
+    title = serializers.CharField(max_length=254)
+    label = serializers.CharField(max_length=254)
+    description = serializers.CharField()
+    creator = serializers.CharField(max_length=254)
+
+    def create(self, validated_data):
+        now = datetime.now()
+        employee = Employee.objects.get(id=validated_data["creator"])
+        print(employee)
+
+        issue = Issue.objects.create(
+            title=validated_data["title"],
+            label=validated_data["label"],
+            description=validated_data["description"],
+            date_time=now,
+            creator=employee,
+        )
+        issue.save()
+        return issue
 
 
 class VehicleIssueSerializer(serializers.ModelSerializer):
