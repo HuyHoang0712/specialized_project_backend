@@ -65,7 +65,7 @@ class CreateEmployeeSerializer(serializers.Serializer):
         employee = Employee.objects.create(
             id=generate_employee_id(),
             user=user,
-            name=validated_data["first_name"].join(" " + validated_data["last_name"]),
+            name=validated_data["first_name"] + " " + validated_data["last_name"],
             email=validated_data["email"],
             date_of_birth=validated_data["dob"],
             phone=validated_data["phone"],

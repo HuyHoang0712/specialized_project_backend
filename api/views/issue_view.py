@@ -80,6 +80,16 @@ class IssueViewSet(viewsets.ModelViewSet):
         serializer = IssueSerializer(queryset, many=False)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=["get"])
+    def get_user_issues(self, request, pk=None):
+        account_id = request.user.id
+        profile = Employee.objects.filter(user=account_id)
+        serializer = EmployeeSerializer(profile, many=True)
+        employee_id = serializer.data[0]["id"]
+        employee_issue = Issue.objects.filter(creator=employee_id)
+        return_issues = IssueSerializer(employee_issue, many=True)
+        return Response(return_issues.data, status=status.HTTP_200_OK)
+
     @action(detail=False, methods=["put"])
     def update_issue_status(self, request, pk=None):
         qr_id = request.query_params["id"]
@@ -99,29 +109,13 @@ class IssueViewSet(viewsets.ModelViewSet):
             return Response(serializers.data, status=status.HTTP_200_OK)
         return Response(serializers.errors, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=["get"])
-    def get_user_issues(self, request, pk=None):
-        account_id = request.user.id
-        profile = Employee.objects.filter(user=account_id)
-        serializer = EmployeeSerializer(profile, many=True)
-        employee_id = serializer.data[0]["id"]
-        employee_issue = Issue.objects.filter(creator=employee_id)
-        return_issues = IssueSerializer(employee_issue, many=True)
-        return Response(return_issues.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"])
     def create_issue(self, request):
         data = request.data
-        employee = Employee.objects.filter(user=request.user.id)
-        employee_serializer = EmployeeSerializer(employee, many=True)
-        issue_object = {
-            "title": data["title"],
-            "label": data["label"],
-            "description": data["description"],
-            "creator": employee_serializer.data[0]["id"],
-        }
-        serializer_issue = CreateIssueSerializer(data=issue_object)
+        data["creator"] = Employee.objects.get(user__id=data["creator"]).id
+        serializer_issue = IssueSerializer(data=data)
         if serializer_issue.is_valid():
-            serializer_issue.create(serializer_issue.validated_data)
-            return Response("Issue is created!", status=status.HTTP_201_CREATED)
+            serializer_issue.save()
+            return Response(serializer_issue.data, status=status.HTTP_201_CREATED)
         return Response(serializer_issue.errors, status=status.HTTP_400_BAD_REQUEST)

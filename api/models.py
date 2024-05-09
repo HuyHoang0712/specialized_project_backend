@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
+from datetime import datetime
 
 # Create your models here.
 
@@ -101,7 +102,7 @@ class Issue(models.Model):
     title = models.CharField(max_length=254)
     label = models.CharField(max_length=254)
     description = models.TextField()
-    date_time = models.DateTimeField()
+    date_time = models.DateTimeField(auto_now_add=True)
     status = models.IntegerField(default=0, choices=ISSUE_STATUS)
     creator = models.ForeignKey(
         Employee, on_delete=models.SET_NULL, null=True, blank=True
