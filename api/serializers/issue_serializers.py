@@ -5,7 +5,7 @@ from ..serializers.employee_serializers import *
 
 
 class IssueSerializer(serializers.ModelSerializer):
-    creator = serializers.SlugRelatedField(read_only=True, slug_field="name")
+    # creator = serializers.SlugRelatedField(read_only=True, slug_field="name")
 
     class Meta:
         model = Issue
@@ -19,7 +19,20 @@ class IssueSerializer(serializers.ModelSerializer):
             "creator",
         )
 
+    def to_representation(self, instance):
+        return {
+            "id": instance.id,
+            "title": instance.title,
+            "description": instance.description,
+            "date_time": instance.date_time,
+            "status": instance.status,
+            "label": instance.label,
+            "creator": instance.creator.name,
+        }
+
+
 class VehicleIssueSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Issue
         fields = "__all__"
@@ -38,3 +51,20 @@ class VehicleIssueSerializer(serializers.ModelSerializer):
             "vehicle_id": vehicle_issue.vehicle_id.license_plate,
             "cost": vehicle_issue.cost,
         }
+
+    def create(self, validated_data, vehicle_id, cost):
+        issue = Issue.objects.create(
+            title=validated_data["title"],
+            description=validated_data["description"],
+            label=validated_data["label"],
+            creator=validated_data["creator"],
+        )
+        issue.save()
+        vehicle_issue = IssueVehicle.objects.create(
+            request_id=issue,
+            vehicle_id=Vehicle.objects.get(license_plate=vehicle_id),
+            cost=cost,
+        )
+        vehicle_issue.save()
+        create_serializers = VehicleIssueSerializer(issue)
+        return create_serializers.data

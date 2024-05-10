@@ -30,3 +30,19 @@ class VehicleViewSet(viewsets.ModelViewSet):
         serializer = VehicleDetailSerializer(vehicle)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=["post"])
+    def assign_driver(self, request):
+        vehicle_license = request.data.get("license_plate")
+        driver_id = request.data.get("driver_id")
+        try:
+            vehicle = Vehicle.objects.get(license_plate=vehicle_license)
+            driver = Employee.objects.get(id=driver_id)
+
+            vehicle.driver = driver
+            vehicle.save()
+            return Response({"message": "Driver assigned successfully"}, status=status.HTTP_200_OK)
+        except not Vehicle:
+            return Response({"error": "Vehicle not found"}, status=status.HTTP_404_NOT_FOUND)
+        except not Employee:
+            return Response({"error": "Driver not found"}, status=status.HTTP_404_NOT_FOUND)
+

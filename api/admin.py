@@ -16,7 +16,7 @@ class IssueVehicleAdmin(admin.ModelAdmin):
 
 @admin.register(Issue)
 class IssueAdmin(admin.ModelAdmin):
-    list_display = ["id", "title", "label"]
+    list_display = ["id", "title", "label", "creator"]
 
 
 @admin.register(Employee)

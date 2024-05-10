@@ -58,6 +58,19 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             return Response(employee, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=False, methods=["get"])
+    def get_unassigned_employees(self, request):
+        # Get the 'employee' group
+        employee_group = Group.objects.get(name='Employee')
+
+        # Filter the employees who are in the 'employee' group and have not been assigned a vehicle
+        unassigned_employees = Employee.objects.filter(user__groups=employee_group, vehicle__isnull=True)
+
+        # Serialize the employees
+        serializer = EmployeeSerializer(unassigned_employees, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class ProfileViewSet(viewsets.ModelViewSet):
     queryset = Employee.objects.all()

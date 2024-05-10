@@ -113,7 +113,15 @@ class IssueViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def create_issue(self, request):
         data = request.data
+        rq_type = request.query_params["type"]
         data["creator"] = Employee.objects.get(user__id=data["creator"]).id
+        if rq_type == "vehicle":
+            serializer_issue = VehicleIssueSerializer(data=data)
+            if serializer_issue.is_valid():
+                new_issue = serializer_issue.create(serializer_issue.validated_data, data["vehicle_id"], data["cost"])
+                return Response(new_issue, status=status.HTTP_201_CREATED)
+            return Response(serializer_issue.errors, status=status.HTTP_400_BAD_REQUEST)
+
         serializer_issue = IssueSerializer(data=data)
         if serializer_issue.is_valid():
             serializer_issue.save()
