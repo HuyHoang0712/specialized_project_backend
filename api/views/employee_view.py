@@ -10,13 +10,12 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def create_user(self, request):
         data = request.data
-        print(data)
         serializer_user = CreateEmployeeSerializer(data=data)
         if serializer_user.is_valid():
             serializer_user.create(serializer_user.validated_data)
 
             return Response("User is created!", status=status.HTTP_201_CREATED)
-        return Response(serializer_user.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Employee information is invalid! Please try again!"}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["get"])
     def get_employee_summary(self, request):
@@ -56,7 +55,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             employee = serializer.update(employee, serializer.validated_data)
             return Response(employee, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Employee information is invalid! Please try again!"}, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["get"])
     def get_unassigned_employees(self, request):

@@ -21,7 +21,8 @@ class VehicleViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "The vehicle information is invalid! Please try again!"},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["get"])
     def get_vehicle_by_license(self, request):
@@ -40,9 +41,8 @@ class VehicleViewSet(viewsets.ModelViewSet):
 
             vehicle.driver = driver
             vehicle.save()
-            return Response({"message": "Driver assigned successfully"}, status=status.HTTP_200_OK)
+            return Response({"detail": "Driver assigned successfully"}, status=status.HTTP_200_OK)
         except not Vehicle:
-            return Response({"error": "Vehicle not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Vehicle not found!"}, status=status.HTTP_404_NOT_FOUND)
         except not Employee:
-            return Response({"error": "Driver not found"}, status=status.HTTP_404_NOT_FOUND)
-
+            return Response({"detail": "Driver not found!"}, status=status.HTTP_404_NOT_FOUND)

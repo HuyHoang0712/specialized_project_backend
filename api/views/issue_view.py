@@ -29,11 +29,9 @@ class IssueViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def get_user_issues(self, request, pk=None):
         account_id = request.user.id
-        print(request.user.id)
         profile = Employee.objects.filter(user=account_id)
         profile_serializer = EmployeeSerializer(profile, many=True)
         employee_id = profile_serializer.data[0]["id"]
-        print(profile_serializer.data[0]["id"])
         issues = Issue.objects.filter(creator=employee_id)
         issue_serializer = IssueSerializer(issues, many=True)
         return Response(issue_serializer.data, status=status.HTTP_200_OK)
@@ -97,18 +95,18 @@ class IssueViewSet(viewsets.ModelViewSet):
 
         issue = Issue.objects.get(id=qr_id)
         if qr_type == "issue-vehicle":
-            serializers = VehicleIssueSerializer(issue, data=request.data, partial=True)
-            if serializers.is_valid():
-                serializers.save()
-                return Response(serializers.data, status=status.HTTP_200_OK)
-            return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializers_vehicle = VehicleIssueSerializer(issue, data=request.data, partial=True)
+            if serializers_vehicle.is_valid():
+                serializers_vehicle.save()
+                return Response(serializers_vehicle.data, status=status.HTTP_200_OK)
+            return Response({"detail": "The update information is invalid! Please try again!"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        serializers = IssueSerializer(issue, data=request.data, partial=True)
-        if serializers.is_valid():
-            serializers.save()
-            return Response(serializers.data, status=status.HTTP_200_OK)
-        return Response(serializers.errors, status=status.HTTP_200_OK)
-
+        serializers_employee = IssueSerializer(issue, data=request.data, partial=True)
+        if serializers_employee.is_valid():
+            serializers_employee.save()
+            return Response(serializers_employee.data, status=status.HTTP_200_OK)
+        return Response({"detail": "The update information is invalid! Please try again!"}, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["post"])
     def create_issue(self, request):
@@ -120,10 +118,12 @@ class IssueViewSet(viewsets.ModelViewSet):
             if serializer_issue.is_valid():
                 new_issue = serializer_issue.create(serializer_issue.validated_data, data["vehicle_id"], data["cost"])
                 return Response(new_issue, status=status.HTTP_201_CREATED)
-            return Response(serializer_issue.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Request information is invalid! Please try again!"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
         serializer_issue = IssueSerializer(data=data)
         if serializer_issue.is_valid():
             serializer_issue.save()
             return Response(serializer_issue.data, status=status.HTTP_201_CREATED)
-        return Response(serializer_issue.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Request information is invalid! Please try again!"},
+                        status=status.HTTP_400_BAD_REQUEST)

@@ -58,6 +58,5 @@ class PlanViewSet(viewsets.ModelViewSet):
         else:
             # Call VRP algorithm
             plan_id = distribute_orders(customers)
-        print(plan_id)
-        return Response(plan_id, status=status.HTTP_200_OK) if plan_id else Response("No plan created",
-                                                                                     status=status.HTTP_204_NO_CONTENT)
+        return Response(plan_id, status=status.HTTP_200_OK) if plan_id else \
+            Response({"detail": "No plan created"}, status=status.HTTP_204_NO_CONTENT)

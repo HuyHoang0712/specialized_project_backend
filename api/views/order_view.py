@@ -72,9 +72,10 @@ class OrderViewSet(viewsets.ModelViewSet):
                 res_serializer = OrderDetailSerializer(order)
 
                 return Response(res_serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "The updated information is invalid! Please try again!"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
-        return Response("Order is not founded!", status=status.HTTP_404_NOT_FOUND)
+        return Response({"detail": "Order is not founded!"}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=["get"])
     def get_orders_of_delivery_point(self, request):
