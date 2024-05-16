@@ -35,6 +35,26 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response(order_summary, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
+    def get_order_summary_of_vehicle(self, request):
+
+            vehicle_id = request.query_params["vehicle_id"]
+            # Calculate the date 6 months ago
+            six_months_ago = timezone.now() - relativedelta(months=6)
+
+            # Filter the orders from the last 6 months
+            queryset = Order.objects.filter(date__gte=six_months_ago, vehicle_id=vehicle_id)
+
+            # Annotate the queryset with the count of each status for each month
+            order_summary = queryset.annotate(month=ExtractMonth('date')).values('month').annotate(
+                pending=Count('status', filter=models.Q(status=0)),
+                in_progress=Count('status', filter=models.Q(status=1)),
+                completed=Count('status', filter=models.Q(status=2)),
+                canceled=Count('status', filter=models.Q(status=3))
+            ).order_by('month')
+
+            return Response(order_summary, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
     def get_orders_by_date(self, request, pk=None):
         qr_date = request.query_params["date"]
         queryset = Order.objects.filter(date=qr_date)

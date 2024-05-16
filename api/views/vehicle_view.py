@@ -25,6 +25,17 @@ class VehicleViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=["get"])
+    def get_vehicle_by_user_id(self, request):
+
+        user_id = request.user.id
+        employee = Employee.objects.get(user__id=user_id)
+        if not Vehicle.objects.filter(driver=employee).exists():
+            return Response({"detail": "You has not been assigned a vehicle!"}, status=status.HTTP_404_NOT_FOUND)
+        vehicle = Vehicle.objects.get(driver=employee)
+        serializer = VehicleSerializer(vehicle)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["get"])
     def get_vehicle_by_license(self, request):
         vehicle_license = request.query_params.get("license_plate")
         vehicle = Vehicle.objects.get(license_plate=vehicle_license)
