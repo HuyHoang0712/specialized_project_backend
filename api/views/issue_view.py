@@ -110,9 +110,11 @@ class IssueViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"])
     def create_issue(self, request):
+        user_id = request.user.id
         data = request.data
         rq_type = request.query_params["type"]
-        data["creator"] = Employee.objects.get(user__id=data["creator"]).id
+        print(data)
+        data["creator"] = Employee.objects.get(user__id=user_id).id
         if rq_type == "vehicle":
             serializer_issue = VehicleIssueSerializer(data=data)
             if serializer_issue.is_valid():
