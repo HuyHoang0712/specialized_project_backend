@@ -142,3 +142,12 @@ class OrderViewSet(viewsets.ModelViewSet):
         ]
         set_of_coordinates = [pickup_point_coordinates, delivery_point_coordinates]
         return Response(set_of_coordinates, status=status.HTTP_200_OK)
+
+
+    @action(detail=False, methods=["get"])
+    def get_current_orders(self, request):
+        user_id = request.user.id
+        profile = Employee.objects.get(user__id=user_id)
+        queryset = Order.objects.filter(vehicle__driver__id=profile.id, date=today)
+        serializer = OrderSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
