@@ -15,11 +15,10 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         if serializer_user.is_valid():
             serializer_user.create(serializer_user.validated_data)
             serializer_data = serializer_user.data
-            print(serializer_data)
             notification.send_welcome_email(
-                serializer_data.username,
-                serializer_data.password,
-                serializer_data.email,
+                serializer_data["username"],
+                serializer_data["password"],
+                serializer_data["email"],
             )
             return Response("User is created!", status=status.HTTP_201_CREATED)
         return Response(
