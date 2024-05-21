@@ -1,17 +1,16 @@
 import math
 import requests
+from ... import constants
 
-MAP_BOX_API = "https://api.mapbox.com/directions-matrix/v1/mapbox/driving/"
-MAP_BOX_ACCESS_TOKEN = "pk.eyJ1IjoidnV2aWV0aHVuZyIsImEiOiJjbHR2YXhjcmQxZmRkMm5vYWxkdjdjYWphIn0.2ZI2ANcvhekAUGxMkX-aew"
+MAP_BOX_API = constants.MAP_BOX_API
+MAP_BOX_ACCESS_TOKEN = constants.MAP_BOX_ACCESS_TOKEN
 
 
 def create_distance_duration_matrix(set_of_location):
     distance_matrix = []
     time_matrix = []
 
-    api_url = (
-            MAP_BOX_API + set_of_location
-    )
+    api_url = MAP_BOX_API + set_of_location
     params = {
         "access_token": MAP_BOX_ACCESS_TOKEN,
         "annotations": "duration,distance",  # Get duration matrix and distance matrix

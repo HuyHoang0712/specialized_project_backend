@@ -1,7 +1,8 @@
 import requests
+from ... import constants
 
-GOOGLE_API = "https://maps.googleapis.com/maps/api/geocode/json"
-GOOGLE_API_ACCESS_TOKEN = "AIzaSyBzAZayxcyaDFCAy_3608RgV1UJy9nX9dQ"
+GOOGLE_API = constants.GOOGLE_API
+GOOGLE_API_ACCESS_TOKEN = constants.GOOGLE_API_ACCESS_TOKEN
 
 
 def get_coordinate(address):

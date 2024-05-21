@@ -1,4 +1,5 @@
 from .backend import *
+from ..utils.notification_service import notification
 
 
 class EmployeeViewSet(viewsets.ModelViewSet):
@@ -13,9 +14,18 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         serializer_user = CreateEmployeeSerializer(data=data)
         if serializer_user.is_valid():
             serializer_user.create(serializer_user.validated_data)
-
+            serializer_data = serializer_user.data
+            print(serializer_data)
+            notification.send_welcome_email(
+                serializer_data.username,
+                serializer_data.password,
+                serializer_data.email,
+            )
             return Response("User is created!", status=status.HTTP_201_CREATED)
-        return Response({"detail": "Employee information is invalid! Please try again!"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "Employee information is invalid! Please try again!"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     @action(detail=False, methods=["get"])
     def get_employee_summary(self, request):
@@ -55,15 +65,20 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             employee = serializer.update(employee, serializer.validated_data)
             return Response(employee, status=status.HTTP_200_OK)
-        return Response({"detail": "Employee information is invalid! Please try again!"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "Employee information is invalid! Please try again!"},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     @action(detail=False, methods=["get"])
     def get_unassigned_employees(self, request):
         # Get the 'employee' group
-        employee_group = Group.objects.get(name='Employee')
+        employee_group = Group.objects.get(name="Employee")
 
         # Filter the employees who are in the 'employee' group and have not been assigned a vehicle
-        unassigned_employees = Employee.objects.filter(user__groups=employee_group, vehicle__isnull=True)
+        unassigned_employees = Employee.objects.filter(
+            user__groups=employee_group, vehicle__isnull=True
+        )
 
         # Serialize the employees
         serializer = EmployeeSerializer(unassigned_employees, many=True)
@@ -85,5 +100,3 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer = EmployeeSerializer(profile, many=True)
         return_data = serializer.data[0]
         return Response(return_data, status=status.HTTP_200_OK)
-
-
