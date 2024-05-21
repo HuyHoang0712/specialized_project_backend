@@ -71,9 +71,16 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"], url_path="get_order_by_id")
     def get_order_by_id(self, request, pk=None):
         qr_id = request.query_params["id"]
+        qr_flag = request.query_params["flag"]
         queryset = Order.objects.get(id=qr_id)
+        if qr_flag == "driver":
+            serializer = OrderDetailForDriverSerializer(queryset)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         serializer = OrderDetailSerializer(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
     @action(
         detail=False,
@@ -95,6 +102,18 @@ class OrderViewSet(viewsets.ModelViewSet):
             return Response({"detail": "The updated information is invalid! Please try again!"},
                             status=status.HTTP_400_BAD_REQUEST)
 
+        return Response({"detail": "Order is not founded!"}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=["put"])
+    def update_order_status(self, request):
+        qr_id = request.data["id"]
+        order = Order.objects.get(id=qr_id)
+        if order:
+            res_serializer = OrderDetailForDriverSerializer(order, data=request.data, partial=True)
+            if res_serializer.is_valid():
+                res_serializer.save()
+                return Response(res_serializer.data, status=status.HTTP_200_OK)
+            return Response({"detail": "The updated information is invalid! Please try again!"},status=status.HTTP_400_BAD_REQUEST)
         return Response({"detail": "Order is not founded!"}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=["get"])
@@ -148,6 +167,6 @@ class OrderViewSet(viewsets.ModelViewSet):
     def get_current_orders(self, request):
         user_id = request.user.id
         profile = Employee.objects.get(user__id=user_id)
-        queryset = Order.objects.filter(vehicle__driver__id=profile.id, date=today)
+        queryset = Order.objects.filter(vehicle__driver__id=profile.id)
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

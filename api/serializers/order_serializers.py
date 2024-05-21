@@ -74,6 +74,41 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         }
 
 
+class OrderDetailForDriverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "ship_code",
+            "date",
+            "time_in",
+            "payload",
+            "pickup_point",
+            "delivery_point",
+            "vehicle",
+            "status",
+            "plan",
+        ]
+
+    def to_representation(self, instance):
+        pickup_point = CustomerSerializer(
+            instance.pickup_point, many=False, read_only=True
+        )
+        delivery_point = CustomerSerializer(
+            instance.delivery_point, many=False, read_only=True
+        )
+        return {
+            "id": instance.id,
+            "ship_code": instance.ship_code,
+            "date": instance.date,
+            "time_in": instance.time_in,
+            "payload": instance.payload,
+            "pickup_point": pickup_point.data,
+            "delivery_point": delivery_point.data,
+            "vehicle": instance.vehicle.license_plate if instance.vehicle else None,
+            "status": instance.status,
+        }
+
 class CreateOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
@@ -89,6 +124,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             "status",
             "plan",
         )
+
 
 
 class OrderCoordinateSerializer(serializers.ModelSerializer):
