@@ -10,7 +10,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
     def get_notifications(self, request):
         user_id = request.user.id
         employee = Employee.objects.get(user=user_id)
-        notifications = HasNotification.objects.filter(employee=employee)
+        notifications = HasNotification.objects.filter(employee=employee).order_by("-notification__send_datetime")
         serializer = NotificationSerializer(notifications, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
