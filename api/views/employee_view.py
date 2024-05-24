@@ -10,6 +10,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["post"])
     def create_user(self, request):
+        if not request.user.has_perm("api.supervisor"):
+            return Response(
+                {"error_message": "Permission Required!", "error_code": 403},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         data = request.data
         serializer_user = CreateEmployeeSerializer(data=data)
         if serializer_user.is_valid():
@@ -28,6 +33,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def get_employee_summary(self, request):
+        if not request.user.has_perm("api.supervisor"):
+            return Response(
+                {"error_message": "Permission Required!", "error_code": 403},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         data = Employee.objects.all()
         total = data.count()
         available = data.filter(status=2).count()
@@ -44,6 +54,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def get_groups(self, request):
+        if not request.user.has_perm("api.supervisor"):
+            return Response(
+                {"error_message": "Permission Required!", "error_code": 403},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         groups = Group.objects.all()
         serializer = GroupSerializer(groups, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -71,6 +86,11 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"])
     def get_unassigned_employees(self, request):
+        if not request.user.has_perm("api.supervisor"):
+            return Response(
+                {"error_message": "Permission Required!", "error_code": 403},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         # Get the 'employee' group
         employee_group = Group.objects.get(name="Employee")
 

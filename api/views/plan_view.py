@@ -26,6 +26,11 @@ class PlanViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     @parser_classes([FileUploadParser])
     def file_upload(self, request):
+        if not request.user.has_perm("api.supervisor"):
+            return Response(
+                {"error_message": "Permission Required!", "error_code": 403},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         data = request.data["file"]
         reader = pd.read_excel(data, sheet_name=0, header=2)
         label_index = [0, 1, 4, 16]  # The column index in Excel file need to get data
@@ -58,5 +63,10 @@ class PlanViewSet(viewsets.ModelViewSet):
         else:
             # Call VRP algorithm
             plan_id = distribute_orders(customers)
-        return Response(plan_id, status=status.HTTP_200_OK) if plan_id else \
-            Response({"detail": "No plan created"}, status=status.HTTP_204_NO_CONTENT)
+        return (
+            Response(plan_id, status=status.HTTP_200_OK)
+            if plan_id
+            else Response(
+                {"detail": "No plan created"}, status=status.HTTP_204_NO_CONTENT
+            )
+        )

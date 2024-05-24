@@ -34,15 +34,18 @@ class Employee(models.Model):
     date_of_birth = models.DateField()
     phone = models.CharField(max_length=12, null=True, blank=True)
     email = models.EmailField(max_length=254, null=True)
-    status = models.IntegerField(
-        default=2, choices=EMPLOYEE_STATUS
-    )
+    status = models.IntegerField(default=2, choices=EMPLOYEE_STATUS)
+
     class Meta:
         permissions = [
             (
                 "supervisor",
                 "can act as a supervisor",
-            )
+            ),
+            (
+                "driver",
+                "can act as a driver",
+            ),
         ]
 
 
@@ -63,9 +66,7 @@ class Vehicle(models.Model):
     license_plate = models.CharField(max_length=32, primary_key=True)
     capacity = models.IntegerField(null=False)
     fuel_consumption_level = models.IntegerField(null=False)
-    status = models.IntegerField(
-        default=2, choices=VEHICLE_STATUS
-    )
+    status = models.IntegerField(default=2, choices=VEHICLE_STATUS)
     brand = models.CharField(default=None, max_length=32, blank=True)
     driver = models.OneToOneField(
         Employee, on_delete=models.SET_NULL, null=True, blank=True
