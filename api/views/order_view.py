@@ -8,6 +8,26 @@ from dateutil.relativedelta import relativedelta
 today = datetime.today().strftime("%Y-%m-%d")
 
 
+def create_notification(order, sender_id, description):
+    receiver_ids = list(
+        Employee.objects.filter(user__groups__name="Facillities Manager").values_list("id", flat=True))
+    receiver_ids = list(set(receiver_ids + [order.vehicle.driver.id]))
+    sender_id = Employee.objects.get(user__id=sender_id).id
+    noti_serializer = CreateNotificationSerializer(
+        data={
+            "type": 1,
+            "sender_id": sender_id,
+            "description": description,
+            "receiver_ids": receiver_ids,
+            "order": order.id,
+        }
+    )
+    if noti_serializer.is_valid():
+        noti_serializer.create(noti_serializer.validated_data)
+    else:
+        print(noti_serializer.errors)
+
+
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -37,50 +57,49 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["get"])
     def get_order_summary_of_vehicle(self, request):
 
-            vehicle_id = request.query_params["vehicle_id"]
-            # Calculate the date 6 months ago
-            six_months_ago = timezone.now() - relativedelta(months=6)
+        vehicle_id = request.query_params["vehicle_id"]
+        # Calculate the date 6 months ago
+        six_months_ago = timezone.now() - relativedelta(months=6)
 
-            # Filter the orders from the last 6 months
-            queryset = Order.objects.filter(date__gte=six_months_ago, vehicle_id=vehicle_id)
+        # Filter the orders from the last 6 months
+        queryset = Order.objects.filter(date__gte=six_months_ago, vehicle_id=vehicle_id)
 
-            # Annotate the queryset with the count of each status for each month
-            order_summary = queryset.annotate(month=ExtractMonth('date')).values('month').annotate(
-                pending=Count('status', filter=models.Q(status=0)),
-                in_progress=Count('status', filter=models.Q(status=1)),
-                completed=Count('status', filter=models.Q(status=2)),
-                canceled=Count('status', filter=models.Q(status=3))
-            ).order_by('month')
+        # Annotate the queryset with the count of each status for each month
+        order_summary = queryset.annotate(month=ExtractMonth('date')).values('month').annotate(
+            pending=Count('status', filter=models.Q(status=0)),
+            in_progress=Count('status', filter=models.Q(status=1)),
+            completed=Count('status', filter=models.Q(status=2)),
+            canceled=Count('status', filter=models.Q(status=3))
+        ).order_by('month')
 
-            return Response(order_summary, status=status.HTTP_200_OK)
+        return Response(order_summary, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
-    def get_orders_by_date(self, request, pk=None):
+    def get_orders_by_date(self, request):
         qr_date = request.query_params["date"]
         queryset = Order.objects.filter(date=qr_date)
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"], url_path="get_orders_in_plan")
-    def get_all_orders_in_transportation_plan(self, request, pk=None):
+    def get_all_orders_in_transportation_plan(self, request):
         qr_plan = request.query_params["plan_id"]
         queryset = Order.objects.filter(plan=qr_plan)
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"], url_path="get_order_by_id")
-    def get_order_by_id(self, request, pk=None):
+    def get_order_by_id(self, request):
         qr_id = request.query_params["id"]
-        qr_flag = request.query_params["flag"]
         queryset = Order.objects.get(id=qr_id)
-        if qr_flag == "driver":
-            serializer = OrderDetailForDriverSerializer(queryset)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        if "flag" in request.query_params:
+            qr_flag = request.query_params["flag"]
+            if qr_flag == "driver":
+                serializer = OrderDetailForDriverSerializer(queryset)
+                return Response(serializer.data, status=status.HTTP_200_OK)
 
         serializer = OrderDetailSerializer(queryset)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 
     @action(
         detail=False,
@@ -97,6 +116,10 @@ class OrderViewSet(viewsets.ModelViewSet):
             if serializer.is_valid():
                 serializer.save()
                 res_serializer = OrderDetailSerializer(order)
+                # Sent notification
+                sender_id = request.user.id
+                description = f"Order {order.id} detials have been updated."
+                create_notification(order, sender_id, description)
 
                 return Response(res_serializer.data, status=status.HTTP_200_OK)
             return Response({"detail": "The updated information is invalid! Please try again!"},
@@ -112,8 +135,13 @@ class OrderViewSet(viewsets.ModelViewSet):
             res_serializer = OrderDetailForDriverSerializer(order, data=request.data, partial=True)
             if res_serializer.is_valid():
                 res_serializer.save()
+                # Sent notification
+                sender_id = request.user.id
+                description = f"Order {order.id} has been updated status."
+                create_notification(order, sender_id, description)
                 return Response(res_serializer.data, status=status.HTTP_200_OK)
-            return Response({"detail": "The updated information is invalid! Please try again!"},status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "The updated information is invalid! Please try again!"},
+                            status=status.HTTP_400_BAD_REQUEST)
         return Response({"detail": "Order is not founded!"}, status=status.HTTP_404_NOT_FOUND)
 
     @action(detail=False, methods=["get"])
@@ -131,7 +159,7 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
-    def get_recent_orders_coordinates(self, request, pk=None):
+    def get_recent_orders_coordinates(self, request):
         qr_date = request.query_params["date"]
         queryset = Order.objects.filter(date=qr_date)
         orders = OrderCoordinateSerializer(queryset, many=True)
@@ -146,11 +174,10 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Response(set_of_coordinates, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=["get"])
-    def get_order_coordinates_by_id(self, request, pk=None):
+    def get_order_coordinates_by_id(self, request):
         qr_id = request.query_params["id"]
         queryset = Order.objects.get(id=qr_id)
         order = OrderCoordinateSerializer(queryset)
-        set_of_coordinates = []
         pickup_point_coordinates = [
             order.data["pickup_point"]["longitude"],
             order.data["pickup_point"]["latitude"],
@@ -161,7 +188,6 @@ class OrderViewSet(viewsets.ModelViewSet):
         ]
         set_of_coordinates = [pickup_point_coordinates, delivery_point_coordinates]
         return Response(set_of_coordinates, status=status.HTTP_200_OK)
-
 
     @action(detail=False, methods=["get"])
     def get_current_orders(self, request):
