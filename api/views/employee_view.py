@@ -27,7 +27,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             )
             return Response("User is created!", status=status.HTTP_201_CREATED)
         return Response(
-            {"detail": "Employee information is invalid! Please try again!"},
+            {"detail": "Username or Email already exists. Please try again!"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 

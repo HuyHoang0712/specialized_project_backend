@@ -10,7 +10,7 @@ today = datetime.today().strftime("%Y-%m-%d")
 
 def create_notification(order, sender_id, description):
     receiver_ids = list(
-        Employee.objects.filter(user__groups__name="Facillities Manager").values_list("id", flat=True))
+        Employee.objects.filter(user__groups__name="Supervisor").values_list("id", flat=True))
     receiver_ids = list(set(receiver_ids + [order.vehicle.driver.id]))
     sender_id = Employee.objects.get(user__id=sender_id).id
     noti_serializer = CreateNotificationSerializer(

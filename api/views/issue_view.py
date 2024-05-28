@@ -11,7 +11,7 @@ end = datetime.today().now().replace(
 
 def create_notification(issue, sender_id, description):
     receiver_ids = list(
-        Employee.objects.filter(user__groups__name="Facillities Manager").values_list(
+        Employee.objects.filter(user__groups__name="Supervisor").values_list(
             "id", flat=True
         )
     )

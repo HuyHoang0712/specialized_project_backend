@@ -36,7 +36,6 @@ class CreateOrder:
                         "pickup_point": 25,
                         "delivery_point": location["id"],
                         "vehicle": vehicle_license,
-                        "status": 1,
                         "plan": plan_id,
                     }
                     res.append(order_obj)

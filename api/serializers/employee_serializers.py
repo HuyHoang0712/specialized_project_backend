@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from api.models import *
 from datetime import datetime
-
+from django.db.models import Max
+import uuid
 
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,16 +31,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
 
 def generate_employee_id():
-    # Get the current year
-    current_year = datetime.now().year
 
-    # Get the total number of employees
-    total_employees = Employee.objects.count()
 
-    # Generate the employee id
-    employee_id = str(current_year)[2:] + str(total_employees + 1).zfill(4)
-
-    return employee_id
+    return str(uuid.uuid4())[:10]
 
 
 class CreateEmployeeSerializer(serializers.Serializer):
@@ -51,6 +45,13 @@ class CreateEmployeeSerializer(serializers.Serializer):
     phone = serializers.CharField(required=True, max_length=12)
     group = serializers.CharField(required=True)
     email = serializers.EmailField(required=True)
+
+    def validate(self, data):
+        if User.objects.filter(username=data["username"]).exists():
+            raise serializers.ValidationError("Username already exists!")
+        if User.objects.filter(email=data["email"]).exists():
+            raise serializers.ValidationError("Email already exists!")
+        return data
 
     def create(self, validated_data):
         user = User.objects.create_user(

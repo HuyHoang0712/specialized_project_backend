@@ -318,7 +318,6 @@ class SVRPSolution:
                         "pickup_point": 25,
                         "delivery_point": self.customers[node_index]["customer_id"],
                         "vehicle": self.vehicles[vehicle_id]["license_plate"],
-                        "status": 1,
                         "plan": self.transportation_plan,
                     }
                     order_need_create.append(order_obj)
