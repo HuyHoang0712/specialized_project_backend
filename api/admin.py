@@ -2,13 +2,7 @@ from django.contrib import admin
 from .models import *
 
 # Register your models here.
-# admin.site.register(Employee)
-# admin.site.register(Warehouse)
-# admin.site.register(TransportationPlan)
-admin.site.register(Notification)
-# admin.site.register(Vehicle)
-# admin.site.register(Customer)
-# admin.site.register(Order)
+
 
 @admin.register(IssueVehicle)
 class IssueVehicleAdmin(admin.ModelAdmin):
@@ -58,3 +52,20 @@ class Order(admin.ModelAdmin):
 @admin.register(Customer)
 class Customer(admin.ModelAdmin):
     list_display = ["id", "name", "address", "longitude", "latitude"]
+
+
+@admin.register(Notification)
+class Notification(admin.ModelAdmin):
+    list_display = ["id", "sender_id", "description", "send_datetime"]
+
+@admin.register(HasNotification)
+class HasNotification(admin.ModelAdmin):
+    list_display = ["employee_id", "notification_id", "is_read"]
+
+@admin.register(NotificationIssue)
+class NotificationIssue(admin.ModelAdmin):
+    list_display = ["issue_id", "notification_id"]
+
+@admin.register(NotificationOrder)
+class NotificationOrder(admin.ModelAdmin):
+    list_display = ["order_id", "notification_id"]

@@ -25,6 +25,7 @@ ISSUE_STATUS = [
     (3, "Denied"),
     (4, "Canceled"),
 ]
+NOTIFICATION_TYPE = [(0, 'general'), (1, 'order'), (2, 'issue')]
 
 
 class Employee(models.Model):
@@ -34,7 +35,10 @@ class Employee(models.Model):
     date_of_birth = models.DateField()
     phone = models.CharField(max_length=12, null=True, blank=True)
     email = models.EmailField(max_length=254, null=True)
-    status = models.IntegerField(default=2, choices=EMPLOYEE_STATUS)
+    status = models.IntegerField(
+        default=2, choices=EMPLOYEE_STATUS
+    )
+    objects = models.Manager()
 
     class Meta:
         permissions = [
@@ -52,14 +56,7 @@ class Employee(models.Model):
 class TransportationPlan(models.Model):
     id = models.AutoField(primary_key=True)
     date = models.DateField(default=timezone.now)
-
-
-class Notification(models.Model):
-    id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=32)
-    message = models.TextField()
-    date_time = models.DateTimeField()
-    employees = models.ManyToManyField(Employee)
+    objects = models.Manager()
 
 
 class Vehicle(models.Model):
@@ -71,6 +68,7 @@ class Vehicle(models.Model):
     driver = models.OneToOneField(
         Employee, on_delete=models.SET_NULL, null=True, blank=True
     )
+    objects = models.Manager()
 
 
 class Customer(models.Model):
@@ -79,6 +77,7 @@ class Customer(models.Model):
     address = models.TextField()
     longitude = models.CharField(max_length=254)
     latitude = models.CharField(max_length=254)
+    objects = models.Manager()
 
 
 class Order(models.Model):
@@ -97,6 +96,8 @@ class Order(models.Model):
     status = models.IntegerField(default=0, choices=ORDER_STATUS)
     plan = models.ForeignKey(TransportationPlan, on_delete=models.SET_NULL, null=True)
 
+    objects = models.Manager()
+
 
 class Issue(models.Model):
     id = models.AutoField(primary_key=True)
@@ -109,8 +110,39 @@ class Issue(models.Model):
         Employee, on_delete=models.SET_NULL, null=True, blank=True
     )
 
+    objects = models.Manager()
+
 
 class IssueVehicle(models.Model):
     request_id = models.OneToOneField(Issue, on_delete=models.CASCADE)
     vehicle_id = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     cost = models.IntegerField(default=0)
+    objects = models.Manager()
+
+
+class Notification(models.Model):
+    id = models.AutoField(primary_key=True)
+    type = models.IntegerField(default=0, choices=NOTIFICATION_TYPE)
+    sender_id = models.ForeignKey(Employee, on_delete=models.SET_NULL, null=True, blank=True)
+    description = models.TextField()
+    send_datetime = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+
+
+class HasNotification(models.Model):
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    is_read = models.BooleanField(default=False)
+    objects = models.Manager()
+
+
+class NotificationOrder(models.Model):
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    objects = models.Manager()
+
+
+class NotificationIssue(models.Model):
+    notification = models.ForeignKey(Notification, on_delete=models.CASCADE)
+    issue = models.ForeignKey(Issue, on_delete=models.CASCADE)
+    objects = models.Manager()
