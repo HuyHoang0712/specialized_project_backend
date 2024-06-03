@@ -92,7 +92,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         # Get the 'employee' group
-        employee_group = Group.objects.get(name="Employee")
+        employee_group = Group.objects.get(name="Driver")
 
         # Filter the employees who are in the 'employee' group and have not been assigned a vehicle
         unassigned_employees = Employee.objects.filter(

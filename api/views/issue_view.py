@@ -176,7 +176,7 @@ class IssueViewSet(viewsets.ModelViewSet):
                 new_issue = serializer_issue.create(serializer_issue.validated_data, data["vehicle_id"], data["cost"])
                 # Sent notification
                 sender_id = user_id
-                description = f"New vehicle issue {new_issue.id} has been created."
+                description = f"New vehicle issue has been created."
                 create_notification(new_issue, sender_id, description)
                 return Response(new_issue, status=status.HTTP_201_CREATED)
             return Response(
